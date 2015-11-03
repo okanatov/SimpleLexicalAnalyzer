@@ -19,7 +19,7 @@ public class LexerTest {
         assertEquals("I", token.toString());
 
         token = lexer.readToken();
-        assertEquals("[V]", token.toString());
+        assertEquals("V", token.toString());
 
         token = lexer.readToken();
         assertEquals("X", token.toString());
@@ -40,13 +40,13 @@ public class LexerTest {
         assertEquals("a", token.toString());
 
         token = lexer.readToken();
-        assertEquals("[<]", token.toString());
+        assertEquals("<", token.toString());
 
         token = lexer.readToken();
         assertEquals("b", token.toString());
 
         token = lexer.readToken();
-        assertEquals("[>]", token.toString());
+        assertEquals(">", token.toString());
 
         token = lexer.readToken();
         assertEquals("c", token.toString());
@@ -63,7 +63,7 @@ public class LexerTest {
         assertEquals("I", token.toString());
 
         token = lexer.readToken();
-        assertEquals("[V]", token.toString());
+        assertEquals("V", token.toString());
 
         token = lexer.readToken();
         assertEquals("X", token.toString());
@@ -96,7 +96,7 @@ public class LexerTest {
         Lexer lexer = new Lexer(new ByteArrayInputStream("IVX".getBytes()), "IV");
 
         token = lexer.readToken();
-        assertEquals("[IV]", token.toString());
+        assertEquals("IV", token.toString());
 
         token = lexer.readToken();
         assertEquals("X", token.toString());
@@ -116,13 +116,13 @@ public class LexerTest {
                         "X");
 
         token = lexer.readToken();
-        assertEquals("[II]", token.toString());
+        assertEquals("II", token.toString());
 
         token = lexer.readToken();
-        assertEquals("[IV]", token.toString());
+        assertEquals("IV", token.toString());
 
         token = lexer.readToken();
-        assertEquals("[X]", token.toString());
+        assertEquals("X", token.toString());
 
         token = lexer.readToken();
         assertEquals(null, token);

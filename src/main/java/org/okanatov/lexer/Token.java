@@ -1,16 +1,15 @@
 package org.okanatov.lexer;
 
 public class Token {
-
     private final String text;
-    private final int type; // 0 - unknown
+    private final TokenType type; // 0 - unknown
 
-    public Token(String text, int type) {
+    public Token(String text, TokenType type) {
         this.text = text;
         this.type = type;
     }
 
-    public int getType() {
+    public TokenType getType() {
         return type;
     }
 
@@ -34,4 +33,8 @@ public class Token {
     public String toString() {
         return text;
     }
+}
+
+enum TokenType {
+    UNKNOWN, KNOWN
 }

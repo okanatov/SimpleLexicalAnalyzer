@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Lexer implements Iterable<Token> {
+class Lexer implements Iterable<Token> {
     private final ArrayList<Token> tokens = new ArrayList<>();
     private StringBuilder buffer = new StringBuilder("");
     private final Pattern pattern;
@@ -25,11 +25,8 @@ public class Lexer implements Iterable<Token> {
     }
 
     public Token readToken() {
-        if (source != null)
-            return readTokenFromStream();
-        else {
-            return readTokenFromLexer();
-        }
+        if (source != null) return readTokenFromStream();
+        else return readTokenFromLexer();
     }
 
     private Token readTokenFromStream() {
@@ -40,13 +37,13 @@ public class Lexer implements Iterable<Token> {
                     buffer.append((char) ch);
                     Matcher matcher = pattern.matcher(buffer);
                     if (matcher.find()) {
-                        tokens.add(new Token(buffer.substring(0, matcher.start()), 0));
-                        tokens.add(new Token("[" + buffer.substring(matcher.start(), matcher.end()) + "]", 1));
+                        tokens.add(new Token(buffer.substring(0, matcher.start()), TokenType.UNKNOWN));
+                        tokens.add(new Token(buffer.substring(matcher.start(), matcher.end()), TokenType.KNOWN));
                         buffer.delete(0, matcher.end());
                     }
                 }
                 if (ch == -1) {
-                    tokens.add(new Token(buffer.toString(), 0));
+                    tokens.add(new Token(buffer.toString(), TokenType.UNKNOWN));
                     buffer = new StringBuilder("");
                 }
             }
@@ -61,20 +58,26 @@ public class Lexer implements Iterable<Token> {
     }
 
     private Token readTokenFromLexer() {
-        if (!tokens.isEmpty())
-            return tokens.remove(0);
+        Token token;
+        Iterator<Token> iterator = lexer.iterator();
 
-        Token token = lexer.readToken();
-        if (token == null || token.getType() != 0) return token;
+        while (tokens.isEmpty()) {
+            if (iterator.hasNext())
+                token = iterator.next();
+            else
+                return null;
 
-        String text = token.toString();
-        Matcher matcher = pattern.matcher(text);
-        if (matcher.find()) {
-            tokens.add(new Token(text.substring(0, matcher.start()), 0));
-            tokens.add(new Token("[" + text.substring(matcher.start(), matcher.end()) + "]", 1));
-            tokens.add(new Token(text.substring(matcher.end(), text.length()), 0));
-        } else {
-            tokens.add(new Token(text, 0));
+            if (token.getType() == TokenType.KNOWN) return token;
+
+            String text = token.toString();
+            Matcher matcher = pattern.matcher(text);
+            if (matcher.find()) {
+                tokens.add(new Token(text.substring(0, matcher.start()), TokenType.UNKNOWN));
+                tokens.add(new Token(text.substring(matcher.start(), matcher.end()), TokenType.KNOWN));
+                tokens.add(new Token(text.substring(matcher.end(), text.length()), TokenType.UNKNOWN));
+            } else {
+                tokens.add(new Token(text, TokenType.UNKNOWN));
+            }
         }
 
         removeEmptyTokens();
