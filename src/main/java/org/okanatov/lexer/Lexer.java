@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,26 +109,36 @@ public class Lexer implements Iterable<Token> {
     private class LexerIterator implements Iterator<Token> {
 
         private Token token = null;
+        private boolean read = false;
 
         @Override
         public boolean hasNext() {
-            return ((token = Lexer.this.readToken()) != null);
+            token = Lexer.this.readToken();
+            read = true;
+            return token != null;
         }
 
         @Override
         public Token next() {
-            if (token != null) {
-                Token temp = token;
-                token = null;
-                return temp;
+            if (read) {
+                read = false;
+                return checkTokenValueAndReturn();
             } else {
-                return Lexer.this.readToken();
+                token = Lexer.this.readToken();
+                return checkTokenValueAndReturn();
             }
+        }
+
+        private Token checkTokenValueAndReturn() {
+            if (token != null)
+                return token;
+            else
+                throw new NoSuchElementException();
         }
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException("remove is not supported by Lexer");
+            throw new UnsupportedOperationException("remove");
         }
     }
 }
