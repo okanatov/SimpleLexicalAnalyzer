@@ -116,7 +116,13 @@ public class Lexer implements Iterable<Token> {
 
         @Override
         public Token next() {
-            return token;
+            if (token != null) {
+                Token temp = token;
+                token = null;
+                return temp;
+            } else {
+                return Lexer.this.readToken();
+            }
         }
 
         @Override
