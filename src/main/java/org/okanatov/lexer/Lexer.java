@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class Lexer implements Iterable<Token> {
+public class Lexer implements Iterable<Token> {
     private final ArrayList<Token> tokens = new ArrayList<>();
     private StringBuilder buffer = new StringBuilder("");
     private final Pattern pattern;
