@@ -38,9 +38,11 @@ public class Lexer implements Iterable<Token> {
                     buffer.append((char) ch);
                     Matcher matcher = pattern.matcher(buffer);
                     if (matcher.find()) {
-                        tokens.add(new Token(buffer.substring(0, matcher.start()), TokenType.UNKNOWN));
-                        tokens.add(new Token(buffer.substring(matcher.start(), matcher.end()), TokenType.KNOWN));
-                        buffer.delete(0, matcher.end());
+                        if (matcher.end() < buffer.length()) {
+                            tokens.add(new Token(buffer.substring(0, matcher.start()), TokenType.UNKNOWN));
+                            tokens.add(new Token(buffer.substring(matcher.start(), matcher.end()), TokenType.KNOWN));
+                            buffer.delete(0, matcher.end());
+                        }
                     }
                 }
                 if (ch == -1) {

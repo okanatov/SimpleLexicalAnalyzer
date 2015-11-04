@@ -12,14 +12,14 @@ public class LexerTest {
     @Test
     public void testV() {
         Lexer lexer = new Lexer(
-                new ByteArrayInputStream("IVX".getBytes()),
-                "V");
+                new ByteArrayInputStream("IVVVX".getBytes()),
+                "V+");
 
         token = lexer.readToken();
         assertEquals("I", token.toString());
 
         token = lexer.readToken();
-        assertEquals("V", token.toString());
+        assertEquals("VVV", token.toString());
 
         token = lexer.readToken();
         assertEquals("X", token.toString());
@@ -57,16 +57,16 @@ public class LexerTest {
     }
     @Test
     public void testLookAheadAndBehind() throws Exception {
-        Lexer lexer = new Lexer(new ByteArrayInputStream("IVX".getBytes()), "(?<=I)V(?=X)");
+        Lexer lexer = new Lexer(new ByteArrayInputStream("IIVVXX".getBytes()), "(?<=I)V+(?=X)");
 
         token = lexer.readToken();
-        assertEquals("I", token.toString());
+        assertEquals("II", token.toString());
 
         token = lexer.readToken();
-        assertEquals("V", token.toString());
+        assertEquals("VV", token.toString());
 
         token = lexer.readToken();
-        assertEquals("X", token.toString());
+        assertEquals("XX", token.toString());
 
         token = lexer.readToken();
         assertEquals(null, token);
