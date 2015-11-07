@@ -8,21 +8,21 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Lexer implements Iterable<Token> {
+public class ChainedLexer implements Iterable<Token> {
     private final ArrayList<Token> tokens = new ArrayList<>();
     private StringBuilder buffer = new StringBuilder("");
     private final Pattern pattern;
     private InputStream source;
-    private Lexer lexer;
+    private ChainedLexer chainedLexer;
 
-    public Lexer(InputStream source, String matchingString) {
+    public ChainedLexer(InputStream source, String matchingString) {
         this(matchingString);
         this.source = source;
     }
 
-    public Lexer(Lexer lexer, String matchingString) {
+    public ChainedLexer(ChainedLexer chainedLexer, String matchingString) {
         this(matchingString);
-        this.lexer = lexer;
+        this.chainedLexer = chainedLexer;
     }
 
     public Token readToken() {
@@ -62,7 +62,7 @@ public class Lexer implements Iterable<Token> {
 
     private Token readTokenFromLexer() {
         Token token;
-        Iterator<Token> iterator = lexer.iterator();
+        Iterator<Token> iterator = chainedLexer.iterator();
 
         while (tokens.isEmpty()) {
             if (iterator.hasNext())
@@ -94,7 +94,7 @@ public class Lexer implements Iterable<Token> {
         return new LexerIterator();
     }
 
-    private Lexer(String matchingString) {
+    private ChainedLexer(String matchingString) {
         pattern = Pattern.compile(matchingString);
     }
 
@@ -115,7 +115,7 @@ public class Lexer implements Iterable<Token> {
 
         @Override
         public boolean hasNext() {
-            token = Lexer.this.readToken();
+            token = ChainedLexer.this.readToken();
             read = true;
             return token != null;
         }
@@ -126,7 +126,7 @@ public class Lexer implements Iterable<Token> {
                 read = false;
                 return checkTokenValueAndReturn();
             } else {
-                token = Lexer.this.readToken();
+                token = ChainedLexer.this.readToken();
                 return checkTokenValueAndReturn();
             }
         }
