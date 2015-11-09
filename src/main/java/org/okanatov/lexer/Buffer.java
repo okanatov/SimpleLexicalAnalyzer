@@ -82,26 +82,52 @@ class Buffer
         }
     }
 
-    public void setBegin(int begin) {
-        assert ((begin >= 0 && begin <= lastElemOfSecondBuffer));
+    public void setBegin(int newBegin) {
+        assert ((newBegin >= 0 && newBegin <= lastElemOfSecondBuffer));
 
-        if (current[begin] == '$')
-            begin = (begin + 1) % totalBufferSize;
+        if (newBegin >= lastElemOfFirstBuffer)
+            newBegin++;
 
-        this.begin = begin;
+        if (newBegin >= lastElemOfSecondBuffer)
+            newBegin = 0;
+
+        this.begin = newBegin;
     }
 
-    public void setForward(int forward) {
-        assert ((forward >= 0 && forward <= lastElemOfSecondBuffer));
+    public void setForward(int newForward) {
+        assert ((newForward >= 0 && newForward <= lastElemOfSecondBuffer));
 
-        if (current[forward] == '$')
-            forward = (forward + 1) % totalBufferSize;
+        if (newForward >= lastElemOfFirstBuffer)
+            newForward++;
 
-        this.forward = forward;
+        if (newForward >= lastElemOfSecondBuffer)
+            newForward = 0;
+
+        this.forward = newForward;
+    }
+
+    public int getBegin() {
+        int temp = begin;
+
+        if (temp > lastElemOfFirstBuffer)
+            temp--;
+
+        if (temp > lastElemOfSecondBuffer)
+            temp = 0;
+
+        return temp;
     }
 
     public int getForward() {
-        return forward;
+        int temp = forward;
+
+        if (temp > lastElemOfFirstBuffer)
+            temp--;
+
+        if (temp > lastElemOfSecondBuffer)
+            temp = 0;
+
+        return temp;
     }
 
     private boolean isBeginInFirstBuffer() {

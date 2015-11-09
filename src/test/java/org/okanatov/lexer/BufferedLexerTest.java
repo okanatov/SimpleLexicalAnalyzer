@@ -77,4 +77,12 @@ public class BufferedLexerTest {
         assertEquals("V", lexer.readChar());
         assertEquals("X", lexer.readChar());
     }
+
+    @Test
+    public void testSimple9() throws Exception {
+        BufferedLexer lexer = new BufferedLexer(new StringReader("123IVX456"), "(?<=23)\\D+(?=45)", 4);
+        assertEquals("123", lexer.readChar());
+        assertEquals("IVX", lexer.readChar());
+        assertEquals("456", lexer.readChar());
+    }
 }

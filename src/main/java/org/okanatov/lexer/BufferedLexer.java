@@ -44,9 +44,10 @@ class BufferedLexer {
                     tokens.add(text.substring(0, matcher.start()));
                     tokens.add(text.substring(matcher.start(), matcher.end()));
 
-                    int diff = text.length() - matcher.end();
-                    int oldForward = buffer.getForward();
-                    buffer.setForward(oldForward - diff);
+                    //int diff = text.length() - matcher.end();
+                    //int oldForward = buffer.getForward();
+                    //buffer.setForward(oldForward - diff);
+                    buffer.setForward(buffer.getBegin() + matcher.end());
                     buffer.setBegin(buffer.getForward());
                 }
             }

@@ -59,7 +59,7 @@ public class BufferTest
 
         buffer.setBegin(8);
 
-        assertEquals("78901", buffer.getString());
+        assertEquals("8901", buffer.getString());
     }
 
     @Test(expected = Error.class)
