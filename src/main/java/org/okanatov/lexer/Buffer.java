@@ -12,7 +12,6 @@ class Buffer
     private int forward = 0;
     private final char[] current;
 
-    private final int totalBufferSize;
     private final int lastElemOfFirstBuffer;
     private final int lastElemOfSecondBuffer;
 
@@ -20,7 +19,7 @@ class Buffer
         this.bufferSize = bufferSize;
         this.lastElemOfFirstBuffer = bufferSize;
         this.lastElemOfSecondBuffer = bufferSize * 2 + 1;
-        this.totalBufferSize = bufferSize * 2 + 2;
+        int totalBufferSize = bufferSize * 2 + 2;
 
         this.reader = reader;
         this.current = new char[totalBufferSize];
@@ -62,7 +61,7 @@ class Buffer
     }
 
     private void ensureNotOverflown() {
-        if (isBeginAndForwardInOneBuffer() && (begin >= forward))
+        if (isBeginAndForwardInOneBuffer() && (begin > forward))
             throw new Error("buffer overflow");
     }
 

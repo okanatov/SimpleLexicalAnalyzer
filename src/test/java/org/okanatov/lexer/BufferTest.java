@@ -21,8 +21,8 @@ public class BufferTest
     {
         char ch = buffer.read();
         while (ch  != '$') {
-            buffer.setBegin(buffer.getForward() - 1);
             System.out.println(buffer.getString());
+            buffer.setBegin(buffer.getForward());
             ch = buffer.read();
         }
     }
