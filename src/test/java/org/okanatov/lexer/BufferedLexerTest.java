@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.StringReader;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BufferedLexerTest {
     @Test
@@ -84,5 +85,11 @@ public class BufferedLexerTest {
         assertEquals("123", lexer.readChar());
         assertEquals("IVX", lexer.readChar());
         assertEquals("456", lexer.readChar());
+    }
+
+    @Test
+    public void testSimple10() {
+        BufferedLexer lexer = new BufferedLexer(new StringReader(""), ".", 4);
+        assertTrue(lexer.readChar() == null);
     }
 }

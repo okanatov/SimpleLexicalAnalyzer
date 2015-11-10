@@ -1,7 +1,6 @@
 package org.okanatov.lexer;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.StringReader;
@@ -12,11 +11,14 @@ public class BufferTest
 {
     private Buffer buffer;
 
+    @Before
+    public void setUp() throws Exception {
+        buffer = new Buffer(6, new StringReader("01234567890123456789"));
+    }
+
     @Test
     public void testBufferReturnsOneSymbolAtTimeIfBeginAndForwardAreTheSame()
     {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
-
         int i = 0;
         String text;
         for (char ch = buffer.read(); ch != '$'; ch = buffer.read()) {
@@ -30,8 +32,6 @@ public class BufferTest
 
     @Test
     public void testBeginAndForwardInFirstBuffer() {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
-
         buffer.setForward(4);
         buffer.setBegin(1);
         assertEquals("123", buffer.getString());
@@ -39,8 +39,6 @@ public class BufferTest
 
     @Test
     public void testBeginAndForwardInDifferentBuffersAndBeginInFirst() {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
-
         for (int i = 0; i < 12; i++) buffer.read();
         buffer.setBegin(4);
 
@@ -49,8 +47,6 @@ public class BufferTest
 
     @Test
     public void testBeginAndForwardInDifferentBuffersAndBeginInSecond() {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
-
         for (int i = 0; i < 8; i++) buffer.read();
         buffer.setBegin(8);
         for (int i = 0; i < 8; i++) buffer.read();
@@ -60,8 +56,6 @@ public class BufferTest
 
     @Test
     public void testBeginForwardInSecond() {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
-
         for (int i = 0; i < 12; i++) buffer.read();
         buffer.setBegin(8);
 
@@ -70,8 +64,6 @@ public class BufferTest
 
     @Test
     public void testGetAndSetForward() {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
-
         buffer.setForward(5);
         assertEquals(5, buffer.getForward());
 
@@ -84,8 +76,6 @@ public class BufferTest
 
     @Test
     public void testGetAndSetBegin() {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
-
         buffer.setBegin(5);
         assertEquals(5, buffer.getBegin());
 
@@ -96,22 +86,9 @@ public class BufferTest
         assertEquals(0, buffer.getBegin());
     }
 
-    @Ignore
-    public void testBufferOverflow1() {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
+    @Test(expected = Error.class)
+    public void testBufferOverflow() {
         buffer.setBegin(4);
-
-        for (int i = 0; i < 13; i++)
-            buffer.read();
-    }
-
-    @Ignore
-    public void testBufferOverflow2() {
-        buffer = new Buffer(6, new StringReader("01234567890123456789"));
-        buffer.setBegin(8);
-
-        for (int i = 0; i < 13; i++)
-            buffer.read();
+        buffer.read();
     }
 }
-

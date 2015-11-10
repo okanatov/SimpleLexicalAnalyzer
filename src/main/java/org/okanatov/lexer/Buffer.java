@@ -30,29 +30,22 @@ class Buffer
 
     public char read() {
         char ch = current[forward++];
+        ensureNotOverflown();
 
         if (ch != '$')
             return ch;
 
         if (forward == lastElemOfFirstBuffer + 1) {
-            ensureNotOverflown();
-
-            if (!tryRead())
-                return getDelimeter();
+            if (!tryRead()) return returnEnd();
 
             return current[forward++];
-
         } else if (forward == lastElemOfSecondBuffer + 1) {
             forward = 0;
-            ensureNotOverflown();
-
-            if (!tryRead())
-                return getDelimeter();
+            if (!tryRead()) return returnEnd();
 
             return current[forward++];
-
         } else {
-            return getDelimeter();
+            return returnEnd();
         }
     }
 
@@ -74,52 +67,32 @@ class Buffer
 
     public void setBegin(int newBegin) {
         assert ((newBegin >= 0 && newBegin < lastElemOfSecondBuffer));
-
-        if (newBegin >= lastElemOfFirstBuffer)
-            newBegin++;
-
-        if (newBegin == lastElemOfSecondBuffer)
-            newBegin = 0;
+        if (newBegin >= lastElemOfFirstBuffer) newBegin++;
+        if (newBegin == lastElemOfSecondBuffer) newBegin = 0;
 
         this.begin = newBegin;
     }
 
     public void setForward(int newForward) {
         assert ((newForward >= 0 && newForward < lastElemOfSecondBuffer));
-
-        if (newForward >= lastElemOfFirstBuffer)
-            newForward++;
-
-        if (newForward == lastElemOfSecondBuffer)
-            newForward = 0;
+        if (newForward >= lastElemOfFirstBuffer) newForward++;
+        if (newForward == lastElemOfSecondBuffer) newForward = 0;
 
         this.forward = newForward;
     }
 
     public int getBegin() {
         int temp = begin;
-
-        if (temp > lastElemOfFirstBuffer)
-            temp--;
+        if (temp > lastElemOfFirstBuffer) temp--;
 
         return temp;
     }
 
     public int getForward() {
         int temp = forward;
-
-        if (temp > lastElemOfFirstBuffer)
-            temp--;
+        if (temp > lastElemOfFirstBuffer) temp--;
 
         return temp;
-    }
-
-    private boolean isPosInFirstBuffer(int pos) {
-        return pos >= 0 && pos <= lastElemOfFirstBuffer;
-    }
-
-    private boolean isPosInSecondBuffer(int pos) {
-        return pos > lastElemOfFirstBuffer && pos <= lastElemOfSecondBuffer;
     }
 
     private boolean isBeginAndForwardInOneBuffer() {
@@ -127,36 +100,44 @@ class Buffer
                 (isPosInSecondBuffer(begin) && isPosInSecondBuffer(forward));
     }
 
-    private char getDelimeter() {
+    private boolean isPosInFirstBuffer(final int pos) {
+        return pos >= 0 && pos <= lastElemOfFirstBuffer;
+    }
+
+    private boolean isPosInSecondBuffer(final int pos) {
+        return pos > lastElemOfFirstBuffer && pos <= lastElemOfSecondBuffer;
+    }
+
+    private char returnEnd() {
         --forward;
         assert (current[forward] == '$');
         return current[forward];
     }
 
-    private void ensureNotOverflown() {
-        if (isBeginAndForwardInOneBuffer() && (begin > forward))
-            throw new Error("buffer overflow");
+    private boolean tryRead() {
+        int len = read(reader, forward);
+        if (len <= 0) {
+            current[forward] = '$';
+            return false;
+        }
+        if (len < bufferSize) current[forward + len] = '$';
+
+        return true;
     }
 
-    private int read(StringReader reader, int pos) {
+    private int read(StringReader reader, final int pos) {
         int len = 0;
         try {
             len = reader.read(current, pos, bufferSize);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return len;
     }
 
-    private boolean tryRead() {
-        int len = read(reader, forward);
-
-        if (len <= 0)
-            return false;
-
-        if (len < bufferSize)
-            current[forward + len] = '$';
-
-        return true;
+    private void ensureNotOverflown() {
+        if (isBeginAndForwardInOneBuffer() && (begin > forward))
+            throw new Error("buffer overflow");
     }
 }
