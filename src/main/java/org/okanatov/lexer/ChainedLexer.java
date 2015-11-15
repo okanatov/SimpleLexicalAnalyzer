@@ -39,14 +39,14 @@ public class ChainedLexer implements Iterable<Token> {
                     Matcher matcher = pattern.matcher(buffer);
                     if (matcher.find()) {
                         if (matcher.end() < buffer.length()) {
-                            tokens.add(new Token(buffer.substring(0, matcher.start()), TokenType.UNKNOWN));
-                            tokens.add(new Token(buffer.substring(matcher.start(), matcher.end()), TokenType.KNOWN));
+                            tokens.add(new Token(buffer.substring(0, matcher.start()), Token.Type.UNKNOWN));
+                            tokens.add(new Token(buffer.substring(matcher.start(), matcher.end()), Token.Type.KNOWN));
                             buffer.delete(0, matcher.end());
                         }
                     }
                 }
                 if (ch == -1) {
-                    tokens.add(new Token(buffer.toString(), TokenType.UNKNOWN));
+                    tokens.add(new Token(buffer.toString(), Token.Type.UNKNOWN));
                     buffer = new StringBuilder("");
                 }
             }
@@ -70,16 +70,16 @@ public class ChainedLexer implements Iterable<Token> {
             else
                 return null;
 
-            if (token.getType() == TokenType.KNOWN) return token;
+            if (token.getType() == Token.Type.KNOWN) return token;
 
             String text = token.toString();
             Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
-                tokens.add(new Token(text.substring(0, matcher.start()), TokenType.UNKNOWN));
-                tokens.add(new Token(text.substring(matcher.start(), matcher.end()), TokenType.KNOWN));
-                tokens.add(new Token(text.substring(matcher.end(), text.length()), TokenType.UNKNOWN));
+                tokens.add(new Token(text.substring(0, matcher.start()), Token.Type.UNKNOWN));
+                tokens.add(new Token(text.substring(matcher.start(), matcher.end()), Token.Type.KNOWN));
+                tokens.add(new Token(text.substring(matcher.end(), text.length()), Token.Type.UNKNOWN));
             } else {
-                tokens.add(new Token(text, TokenType.UNKNOWN));
+                tokens.add(new Token(text, Token.Type.UNKNOWN));
             }
         }
 
