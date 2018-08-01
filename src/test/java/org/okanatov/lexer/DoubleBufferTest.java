@@ -30,34 +30,40 @@ public class DoubleBufferTest
     }
 
     @Test
-    public void testGetcReturnsChars() {
-        try {
-            b = new DoubleBuffer(5, new StringReader("0123456789abcdef"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assertEquals('0', b.getc());
-        assertEquals('1', b.getc());
-    }
-
-    @Test
     public void testGetcReturnsEOFOnEmptyReader() {
         try {
             b = new DoubleBuffer(5, new StringReader(""));
+            assertEquals(DoubleBuffer.eof, b.getc());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals(DoubleBuffer.eof, b.getc());
     }
 
     @Test
     public void testGetcReturnsEOF() {
         try {
             b = new DoubleBuffer(5, new StringReader("0"));
+            assertEquals('0', b.getc());
+            assertEquals(DoubleBuffer.eof, b.getc());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals('0', b.getc());
-        assertEquals(DoubleBuffer.eof, b.getc());
+    }
+
+    @Test
+    public void testGetcReturnsChars() {
+        String input = "0123456789abcdef";
+        try {
+            b = new DoubleBuffer(5, new StringReader(input));
+
+            char arr[] = input.toCharArray();
+            for (char c : arr) {
+                assertEquals(c, b.getc());
+            }
+
+            assertEquals(DoubleBuffer.eof, b.getc());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -10,6 +10,10 @@ final public class DoubleBuffer {
     private StringReader source;
     private char[] buffer;
     private int forward = 0;
+    private final int startOfFirst;
+    private final int endOfFirst;
+    private final int startOfSecond;
+    private final int endOfSecond;
 
     public DoubleBuffer(int s, StringReader r) throws IOException {
         // Always check functions input
@@ -19,31 +23,50 @@ final public class DoubleBuffer {
         size = s;
         source = r;
 
-        buffer = new char[size + 1];
+        startOfFirst = 0;
+        endOfFirst = size;
+        startOfSecond = size + 1;
+        endOfSecond = size * 2 + 1;
 
-        load();
+        int totalSize = size * 2 + 2;
+
+        buffer = new char[totalSize];
+
+        load(startOfFirst);
     }
 
-    public char getc() {
+    public char getc() throws IOException {
         char ch = buffer[forward++];
 
         switch (ch) {
             case eof:
-                return eof;
+                if (forward == endOfFirst + 1) {
+                    load(startOfSecond);
+                    forward = startOfSecond;
+                    return getc();
+                } else if (forward == endOfSecond + 1) {
+                    load(startOfFirst);
+                    forward = startOfFirst;
+                    return getc();
+                } else {
+                    return eof;
+                }
             default:
                 return ch;
         }
     }
 
-    private void load() throws IOException {
-        int len = source.read(buffer, 0, size);
+    private void load(int pos) throws IOException {
+        assert((pos == startOfFirst) || (pos == startOfSecond));
+
+        int len = source.read(buffer, pos, size);
 
         if (len <= 0) {
             // Logging
             System.out.println("End of the stream has been reached");
-            buffer[0] = eof;
+            buffer[pos] = eof;
         } else {
-            buffer[len] = eof;
+            buffer[pos + len] = eof;
         }
     }
 }
