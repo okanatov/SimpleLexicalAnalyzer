@@ -47,7 +47,7 @@ public class DoubleBufferTest
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals('$', b.getc());
+        assertEquals(DoubleBuffer.eof, b.getc());
     }
 
     @Test
@@ -58,6 +58,6 @@ public class DoubleBufferTest
             e.printStackTrace();
         }
         assertEquals('0', b.getc());
-        assertEquals('$', b.getc());
+        assertEquals(DoubleBuffer.eof, b.getc());
     }
 }

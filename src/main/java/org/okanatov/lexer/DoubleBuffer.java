@@ -4,6 +4,8 @@ import java.io.StringReader;
 import java.io.IOException;
 
 final public class DoubleBuffer {
+    public static final int eof = 256;
+
     private int size;
     private StringReader source;
     private char[] buffer;
@@ -26,8 +28,8 @@ final public class DoubleBuffer {
         char ch = buffer[forward++];
 
         switch (ch) {
-            case '$':
-                return '$'; // EOF can be replaced with some other symbol
+            case eof:
+                return eof;
             default:
                 return ch;
         }
@@ -39,9 +41,9 @@ final public class DoubleBuffer {
         if (len <= 0) {
             // Logging
             System.out.println("End of the stream has been reached");
-            buffer[0] = '$';
+            buffer[0] = eof;
         } else {
-            buffer[len] = '$';
+            buffer[len] = eof;
         }
     }
 }
