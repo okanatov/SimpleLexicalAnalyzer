@@ -2,9 +2,13 @@ package org.okanatov.lexer;
 
 import java.io.StringReader;
 import java.io.IOException;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 final public class DoubleBuffer {
     public static final int eof = 256;
+
+    private static Logger logger = LogManager.getLogger(DoubleBuffer.class);
 
     private int size;
     private StringReader source;
@@ -35,6 +39,7 @@ final public class DoubleBuffer {
         load(startOfFirst);
     }
 
+    // Documentation
     public char getc() throws IOException {
         char ch = buffer[forward++];
 
@@ -56,14 +61,14 @@ final public class DoubleBuffer {
         }
     }
 
+    // Documentation
     private void load(int pos) throws IOException {
         assert((pos == startOfFirst) || (pos == startOfSecond));
 
         int len = source.read(buffer, pos, size);
 
         if (len <= 0) {
-            // Logging
-            System.out.println("End of the stream has been reached");
+            logger.debug("End of the stream has been reached");
             buffer[pos] = eof;
         } else {
             buffer[pos + len] = eof;
