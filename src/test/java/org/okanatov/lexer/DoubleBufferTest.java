@@ -1,12 +1,16 @@
 package org.okanatov.lexer;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.StringReader;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Ignore;
-import static org.junit.Assert.assertEquals;
 
+/**
+ * This class "unit"tests the {@DoubleBuffer} class.
+ */
 public class DoubleBufferTest
 {
     private DoubleBuffer b;
@@ -21,7 +25,7 @@ public class DoubleBufferTest
     }
 
     @Test(expected = AssertionError.class)
-    public void testCtorChecksNullSize() {
+    public void testCtorChecksZeroSize() {
         try {
             b = new DoubleBuffer(0, null);
         } catch (IOException e) {
@@ -40,7 +44,7 @@ public class DoubleBufferTest
     }
 
     @Test
-    public void testGetcReturnsEOF() {
+    public void testGetcCanReturnEOFOnAllCharsRead() {
         try {
             b = new DoubleBuffer(5, new StringReader("0"));
             assertEquals('0', b.getc());
@@ -51,8 +55,9 @@ public class DoubleBufferTest
     }
 
     @Test
-    public void testGetcReturnsChars() {
+    public void testGetcCanLoadBuffersAndReturnEOFOnAllCharsRead() {
         String input = "0123456789abcdef";
+
         try {
             b = new DoubleBuffer(5, new StringReader(input));
 

@@ -6,7 +6,11 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 /**
- * This is a double buffer class.
+ * This is a double buffer class. It reads characters from {@link StringReader} passed in the class
+ * constructor and keeps them in an internal buffer. The class considers the buffer divided in to
+ * same halfs. If all the characters from the first half are returned to an application, the second
+ * half is filled in with new characters. The same thing is if the characters from the second half
+ * are returned to an application. The first half of the buffer is loaded, then.
  */
 final public class DoubleBuffer {
     public static final int eof = 256;
@@ -15,18 +19,25 @@ final public class DoubleBuffer {
 
     private int size;
     private StringReader source;
-    private char[] buffer;
-    private int forward = 0;
     private final int startOfFirst;
     private final int endOfFirst;
     private final int startOfSecond;
     private final int endOfSecond;
+    private char[] buffer;
+    private int forward = 0;
 
+    /**
+     * Takes size of a half of the buffer, i.e. the total buffer will be twice more, and {@link StringReader}
+     * object to read characters from.
+     *
+     *  @param s size of a half of the buffer. The total buffer size consisting of two halves is twice more
+     *  @param r {@link StringReader} object to read characters from
+     */
     public DoubleBuffer(int s, StringReader r) throws IOException {
         logger.traceEntry("Ctor: {}, {}", s, r);
 
         // Always check functions input
-        assert(s != 0);
+        assert s != 0;
         assert r != null;
 
         size = s;
@@ -37,9 +48,7 @@ final public class DoubleBuffer {
         startOfSecond = size + 1;
         endOfSecond = size * 2 + 1;
 
-        int totalSize = size * 2 + 2;
-
-        buffer = new char[totalSize];
+        buffer = new char[size * 2 + 2];
 
         load(startOfFirst);
 
@@ -63,28 +72,34 @@ final public class DoubleBuffer {
             case eof:
                 if (forward == endOfFirst + 1) {
                     logger.debug("EOF found at end of the first buffer. Loading the second...");
+
                     load(startOfSecond);
                     forward = startOfSecond;
                     return getc();
+
                 } else if (forward == endOfSecond + 1) {
                     logger.debug("EOF found at end of the second buffer. Loading the first...");
+
                     load(startOfFirst);
                     forward = startOfFirst;
                     return getc();
+
                 } else {
                     logger.debug("EOF found. Quiting...");
+
                     logger.exit();
                     return eof;
                 }
             default:
                 logger.debug("Non-EOF found: {}", ch);
+
                 logger.exit(ch);
                 return ch;
         }
     }
 
     /** 
-     * Loads characters from {@link StringReader} to the internal buffer, starting
+     * Loads characters from {@link StringReader} to the internal buffer starting
      * from position pos.
      *
      * @param pos Offset at which to start writing characters in the buffer
