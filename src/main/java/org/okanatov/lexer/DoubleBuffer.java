@@ -5,6 +5,9 @@ import java.io.IOException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+/**
+ * This is a double buffer class.
+ */
 final public class DoubleBuffer {
     public static final int eof = 256;
 
@@ -43,7 +46,14 @@ final public class DoubleBuffer {
         logger.exit();
     }
 
-    // Documentation
+    /** 
+     * Returns the next character from the internal buffer.
+     * In case DoubleBuffer.eof is reached at end of the first buffer half or
+     * at end of the second one, then reloads the opposite half. Returns
+     * DoubleBuffer.eof at once if this character is reached not at end of the halfs.
+     *
+     * @return the next character from the buffer or DoubleBuffer.eof if EOF is reached.
+     */
     public char getc() throws IOException {
         logger.traceEntry("getc");
 
@@ -73,7 +83,12 @@ final public class DoubleBuffer {
         }
     }
 
-    // Documentation
+    /** 
+     * Loads characters from {@link StringReader} to the internal buffer, starting
+     * from position pos.
+     *
+     * @param pos Offset at which to start writing characters in the buffer
+     */
     private void load(int pos) throws IOException {
         logger.traceEntry("load: {}", pos);
 
