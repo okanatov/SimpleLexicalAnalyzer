@@ -25,6 +25,7 @@ final public class DoubleBuffer {
     private final int endOfSecond;
     private char[] buffer;
     private int forward = 0;
+    private int begin = 0;
 
     /**
      * Takes size of a half of the buffer, i.e. the total buffer will be twice more, and {@link StringReader}
@@ -96,6 +97,59 @@ final public class DoubleBuffer {
                 logger.exit(ch);
                 return ch;
         }
+    }
+
+    /**
+     * Returns a string of characters located between the begin and the forward pointers. Makes begin point
+     * to the same position as forward does.
+     *
+     * @return a string of characters located between the begin and the forward pointers
+     */
+    public String getString() {
+        logger.traceEntry("getString");
+
+        String result = "";
+        String buffer = new String(this.buffer); // Convert buffer array to String
+
+        if(ArePointersInSameHalf()) {
+            logger.debug("Begin and forward are in same half");
+
+            result = buffer.substring(begin, forward);
+        } else {
+            if(begin >= startOfFirst && begin < endOfFirst) {
+                logger.debug("Begin and forward are not in same half. Begin in the first half");
+
+                result = buffer.substring(begin, endOfFirst) + buffer.substring(startOfSecond, forward);
+            } else {
+                logger.debug("Begin and forward are not in same half. Begin in the second half");
+
+                result = buffer.substring(begin, endOfSecond) + buffer.substring(startOfFirst, forward);
+            }
+        }
+
+        begin = forward;
+
+        logger.exit(result);
+        return result;
+    }
+
+    /**
+     * Checks if the begin and forward pointers are in the same half.
+     *
+     * @return true if both pointers are in the same half, false otherwise
+     */
+    private boolean ArePointersInSameHalf() {
+        if ((begin >= startOfFirst && begin < endOfFirst) &&       // We can create a method to check
+            (forward >= startOfFirst && forward < endOfFirst)) {   // whether a pointer is in first half or not
+                return true;
+        }
+
+        if ((begin >= startOfSecond && begin < endOfSecond) &&
+            (forward >= startOfSecond && forward < endOfSecond)) {
+                return true;
+        }
+
+        return false;
     }
 
     /** 

@@ -71,4 +71,49 @@ public class DoubleBufferTest
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testGetStringCanReturnDiffBetweenPointers() {
+        try {
+            b = new DoubleBuffer(5, new StringReader("012"));
+            assertEquals('0', b.getc());
+            assertEquals('1', b.getc());
+            assertEquals('2', b.getc());
+            assertEquals("012", b.getString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGetStringReturnsEmptyStringIfPointersAreSame() {
+        try {
+            b = new DoubleBuffer(5, new StringReader("012"));
+            assertEquals("", b.getString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGetStringReturnsEmptyStringIfPointersAreSameAfterSomeRead() {
+        try {
+            b = new DoubleBuffer(5, new StringReader("0123456"));
+            assertEquals('0', b.getc());
+            assertEquals('1', b.getc());
+            assertEquals('2', b.getc());
+            assertEquals("012", b.getString());
+            assertEquals("", b.getString());
+            assertEquals('3', b.getc());
+            assertEquals("3", b.getString());
+            assertEquals('4', b.getc());
+            assertEquals('5', b.getc());
+            assertEquals('6', b.getc());
+            assertEquals("456", b.getString());
+            assertEquals(DoubleBuffer.eof, b.getc());
+            // assertEquals("", b.getString()); in order for this to work it needs to make forward--
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
