@@ -111,7 +111,71 @@ public class DoubleBufferTest
             assertEquals('6', b.getc());
             assertEquals("456", b.getString());
             assertEquals(DoubleBuffer.eof, b.getc());
-            // assertEquals("", b.getString()); in order for this to work it needs to make forward--
+            b.ungetc();
+            assertEquals("", b.getString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Ignore
+    @Test
+    public void testNewCharactersAreNotLoadedIfBufferIsOverflown() {
+        try {
+            b = new DoubleBuffer(5, new StringReader("0123456789abcdef"));
+
+            for (int i = 0; i < 10; i++) {
+                assertEquals(i, b.getc());
+            }
+
+            b.getc(); // causes Exception
+        } catch (Error e) {
+            // Do nothing
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        try {
+            assertEquals("0123456789", b.getString());
+            assertEquals('a', b.getc());
+            assertEquals('b', b.getc());
+            assertEquals('c', b.getc());
+            assertEquals('d', b.getc());
+            assertEquals('e', b.getc());
+            assertEquals('f', b.getc());
+            assertEquals(DoubleBuffer.eof, b.getc());
+            assertEquals("abcdef", b.getString());
+        } catch (IOException e2) {
+            e2.printStackTrace();
+        }
+    }
+
+    @Ignore
+    @Test
+    public void testNewCharactersAreNotLoadedIfTheyWereBefore() {
+        try {
+            b = new DoubleBuffer(5, new StringReader("0123456789abcdef"));
+
+            assertEquals('0', b.getc());
+            assertEquals('1', b.getc());
+            assertEquals('2', b.getc());
+            assertEquals('3', b.getc());
+            assertEquals('4', b.getc());
+            assertEquals('5', b.getc());
+            assertEquals('6', b.getc());
+            b.ungetc();
+            assertEquals('6', b.getc());
+            b.ungetc();
+            b.ungetc();
+            b.ungetc();
+            assertEquals('4', b.getc());
+            assertEquals('5', b.getc());
+            assertEquals('6', b.getc());
+            assertEquals(DoubleBuffer.eof, b.getc());
+            b.ungetc();
+            b.ungetc();
+            assertEquals('6', b.getc());
+            assertEquals(DoubleBuffer.eof, b.getc());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -134,6 +134,15 @@ final public class DoubleBuffer {
     }
 
     /**
+     * Returns one last-read character back to the buffer so that next getc() will return it again.
+     */
+    public void ungetc() {
+        logger.traceEntry("ungetc");
+        --forward;
+        logger.exit();
+    }
+
+    /**
      * Checks if the begin and forward pointers are in the same half.
      *
      * @return true if both pointers are in the same half, false otherwise
