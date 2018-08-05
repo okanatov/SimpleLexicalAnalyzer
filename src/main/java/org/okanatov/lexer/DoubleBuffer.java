@@ -2,6 +2,8 @@ package org.okanatov.lexer;
 
 import java.io.StringReader;
 import java.io.IOException;
+import java.util.Queue;
+import java.util.LinkedList;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -26,6 +28,7 @@ final public class DoubleBuffer {
     private char[] buffer;
     private int forward = 0;
     private int begin = 0;
+    private Queue<Integer> loadedHalves = new LinkedList<>();
 
     /**
      * Takes size of a half of the buffer, i.e. the total buffer will be twice more, and {@link StringReader}
@@ -74,14 +77,24 @@ final public class DoubleBuffer {
                 if (forward == endOfFirst + 1) {
                     logger.debug("EOF found at end of the first buffer. Loading the second...");
 
-                    load(startOfSecond);
+                    loadedHalves.remove();
+
+                    if (loadedHalves.isEmpty()) {
+                        load(startOfSecond);
+                    }
+
                     forward = startOfSecond;
                     return getc();
 
                 } else if (forward == endOfSecond + 1) {
                     logger.debug("EOF found at end of the second buffer. Loading the first...");
 
-                    load(startOfFirst);
+                    loadedHalves.remove();
+
+                    if (loadedHalves.isEmpty()) {
+                        load(startOfFirst);
+                    }
+
                     forward = startOfFirst;
                     return getc();
 
@@ -138,7 +151,21 @@ final public class DoubleBuffer {
      */
     public void ungetc() {
         logger.traceEntry("ungetc");
-        --forward;
+
+        forward = (endOfSecond + 1 + (forward - 1)) % (endOfSecond + 1);
+
+        if (buffer[forward] == DoubleBuffer.eof) {
+            if (forward == endOfFirst) {
+                loadedHalves.add(2);
+                --forward;
+            } else if (forward == endOfSecond) {
+                loadedHalves.add(1);
+                --forward;
+            } else {
+                logger.debug("End of stream has been reached");
+            }
+        }
+
         logger.exit();
     }
 
@@ -179,6 +206,12 @@ final public class DoubleBuffer {
             buffer[pos] = eof;
         } else {
             buffer[pos + len] = eof;
+        }
+
+        if (pos == startOfFirst) {
+            loadedHalves.add(1);
+        } else {
+            loadedHalves.add(2);
         }
 
         logger.exit();

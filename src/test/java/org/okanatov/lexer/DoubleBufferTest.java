@@ -150,11 +150,10 @@ public class DoubleBufferTest
         }
     }
 
-    @Ignore
     @Test
     public void testNewCharactersAreNotLoadedIfTheyWereBefore() {
         try {
-            b = new DoubleBuffer(5, new StringReader("0123456789abcdef"));
+            b = new DoubleBuffer(5, new StringReader("0123456"));
 
             assertEquals('0', b.getc());
             assertEquals('1', b.getc());
@@ -176,6 +175,24 @@ public class DoubleBufferTest
             b.ungetc();
             assertEquals('6', b.getc());
             assertEquals(DoubleBuffer.eof, b.getc());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testUngetcCharacter() {
+        try {
+            b = new DoubleBuffer(3, new StringReader("0123456789abcdef"));
+
+            assertEquals('0', b.getc());
+            assertEquals('1', b.getc());
+            assertEquals('2', b.getc());
+            assertEquals('3', b.getc());
+            b.ungetc();
+            b.ungetc();
+            assertEquals('2', b.getc());
+            assertEquals('3', b.getc());
         } catch (IOException e) {
             e.printStackTrace();
         }
