@@ -64,6 +64,8 @@ public class DoubleBufferTest
             char arr[] = input.toCharArray();
             for (char c : arr) {
                 assertEquals(c, b.getc());
+                System.out.println(Character.toString(c));
+                assertEquals(Character.toString(c), b.getString());
             }
 
             assertEquals(DoubleBuffer.eof, b.getc());
@@ -118,19 +120,18 @@ public class DoubleBufferTest
         }
     }
 
-    @Ignore
     @Test
     public void testNewCharactersAreNotLoadedIfBufferIsOverflown() {
         try {
             b = new DoubleBuffer(5, new StringReader("0123456789abcdef"));
 
             for (int i = 0; i < 10; i++) {
-                assertEquals(i, b.getc());
+                assertEquals((char) (i + '0'), b.getc());
             }
 
             b.getc(); // causes Exception
         } catch (Error e) {
-            // Do nothing
+          System.out.println(e);
         } catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -144,6 +145,7 @@ public class DoubleBufferTest
             assertEquals('e', b.getc());
             assertEquals('f', b.getc());
             assertEquals(DoubleBuffer.eof, b.getc());
+            b.ungetc();
             assertEquals("abcdef", b.getString());
         } catch (IOException e2) {
             e2.printStackTrace();

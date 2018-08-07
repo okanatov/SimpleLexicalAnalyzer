@@ -67,7 +67,7 @@ final public class DoubleBuffer {
      *
      * @return the next character from the buffer or DoubleBuffer.eof if EOF is reached.
      */
-    public char getc() throws IOException {
+    public char getc() throws IOException, Error {
         logger.traceEntry("getc");
 
         char ch = buffer[forward++];
@@ -77,26 +77,45 @@ final public class DoubleBuffer {
                 if (forward == endOfFirst + 1) {
                     logger.debug("EOF found at end of the first buffer. Loading the second...");
 
-                    loadedHalves.remove();
+                    if (begin >= startOfSecond && begin < endOfSecond) {
+                      forward--;
+                      throw new Error("Buffer overflown");
+                    } else {
+                      loadedHalves.remove();
 
-                    if (loadedHalves.isEmpty()) {
+                      if (loadedHalves.isEmpty()) {
                         load(startOfSecond);
-                    }
+                      }
 
-                    forward = startOfSecond;
-                    return getc();
+                      forward = startOfSecond;
+
+                      if (begin == endOfFirst) {
+                        begin = startOfSecond;
+                      }
+
+                      return getc();
+                    }
 
                 } else if (forward == endOfSecond + 1) {
                     logger.debug("EOF found at end of the second buffer. Loading the first...");
 
-                    loadedHalves.remove();
+                    if (begin >= startOfFirst && begin < endOfFirst) {
+                      forward--;
+                      throw new Error("Buffer overflown");
+                    } else {
+                      loadedHalves.remove();
 
-                    if (loadedHalves.isEmpty()) {
+                      if (loadedHalves.isEmpty()) {
                         load(startOfFirst);
-                    }
+                      }
 
-                    forward = startOfFirst;
-                    return getc();
+                      forward = startOfFirst;
+
+                      if (begin == endOfSecond) {
+                        begin = startOfFirst;
+                      }
+                      return getc();
+                    }
 
                 } else {
                     logger.debug("EOF found. Quiting...");
@@ -175,13 +194,13 @@ final public class DoubleBuffer {
      * @return true if both pointers are in the same half, false otherwise
      */
     private boolean ArePointersInSameHalf() {
-        if ((begin >= startOfFirst && begin < endOfFirst) &&       // We can create a method to check
-            (forward >= startOfFirst && forward < endOfFirst)) {   // whether a pointer is in first half or not
+        if ((begin >= startOfFirst && begin <= endOfFirst) &&       // We can create a method to check
+            (forward >= startOfFirst && forward <= endOfFirst)) {   // whether a pointer is in first half or not
                 return true;
         }
 
-        if ((begin >= startOfSecond && begin < endOfSecond) &&
-            (forward >= startOfSecond && forward < endOfSecond)) {
+        if ((begin >= startOfSecond && begin <= endOfSecond) &&
+            (forward >= startOfSecond && forward <= endOfSecond)) {
                 return true;
         }
 
