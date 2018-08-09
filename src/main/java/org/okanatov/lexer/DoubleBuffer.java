@@ -132,6 +132,31 @@ final public class DoubleBuffer {
     }
 
     /**
+     * Returns size of the string.
+     *
+     * @return size of the string
+     */
+    public int getSize() {
+      logger.traceEntry("getSize");
+
+      if(ArePointersInSameHalf()) {
+        logger.debug("Begin and forward are in same half");
+        if (forward < begin) {
+          throw new Error("Buffer overflown");
+        }
+        return forward - begin;
+      } else {
+        if(begin >= startOfFirst && begin < endOfFirst) {
+          logger.debug("Begin and forward are not in same half. Begin in the first half");
+          return forward - begin - 1;
+        } else {
+          logger.debug("Begin and forward are not in same half. Begin in the second half");
+          return endOfSecond - (begin - forward);
+        }
+      }
+    }
+
+    /**
      * Returns a string of characters located between the begin and the forward pointers. Makes begin point
      * to the same position as forward does.
      *
@@ -144,9 +169,13 @@ final public class DoubleBuffer {
         String buffer = new String(this.buffer); // Convert buffer array to String
 
         if(ArePointersInSameHalf()) {
-            logger.debug("Begin and forward are in same half");
+          logger.debug("Begin and forward are in same half");
 
-            result = buffer.substring(begin, forward);
+          if (forward < begin) {
+            throw new Error("Buffer overflown");
+          }
+
+          result = buffer.substring(begin, forward);
         } else {
             if(begin >= startOfFirst && begin < endOfFirst) {
                 logger.debug("Begin and forward are not in same half. Begin in the first half");

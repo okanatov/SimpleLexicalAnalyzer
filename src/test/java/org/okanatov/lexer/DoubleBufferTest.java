@@ -199,4 +199,32 @@ public class DoubleBufferTest
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testGetSize() {
+        try {
+          b = new DoubleBuffer(5, new StringReader("0123456789abcdef"));
+
+          b.getc();
+          b.getc();
+          b.getc();
+          assertEquals(3, b.getSize());
+          b.getc();
+          b.getc();
+          b.getc();
+          assertEquals(6, b.getSize());
+          b.getString();
+          b.getc();
+          b.getc();
+          assertEquals(2, b.getSize());
+          b.getc();
+          b.getc();
+          b.getc();
+          b.getc();
+          b.getc();
+          assertEquals(7, b.getSize());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
