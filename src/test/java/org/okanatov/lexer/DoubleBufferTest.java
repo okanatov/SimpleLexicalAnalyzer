@@ -36,7 +36,7 @@ public class DoubleBufferTest {
   public void testGetcReturnsEOFOnEmptyReader() {
     try {
       b = new DoubleBuffer(5, new StringReader(""));
-      assertEquals(DoubleBuffer.eof, b.getc());
+      assertEquals(DoubleBuffer.EOF, b.getc());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -47,7 +47,7 @@ public class DoubleBufferTest {
     try {
       b = new DoubleBuffer(5, new StringReader("0"));
       assertEquals('0', b.getc());
-      assertEquals(DoubleBuffer.eof, b.getc());
+      assertEquals(DoubleBuffer.EOF, b.getc());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -67,7 +67,7 @@ public class DoubleBufferTest {
         assertEquals(Character.toString(c), b.getString());
       }
 
-      assertEquals(DoubleBuffer.eof, b.getc());
+      assertEquals(DoubleBuffer.EOF, b.getc());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -111,7 +111,7 @@ public class DoubleBufferTest {
       assertEquals('5', b.getc());
       assertEquals('6', b.getc());
       assertEquals("456", b.getString());
-      assertEquals(DoubleBuffer.eof, b.getc());
+      assertEquals(DoubleBuffer.EOF, b.getc());
       b.ungetc();
       assertEquals("", b.getString());
     } catch (IOException e) {
@@ -143,7 +143,7 @@ public class DoubleBufferTest {
       assertEquals('d', b.getc());
       assertEquals('e', b.getc());
       assertEquals('f', b.getc());
-      assertEquals(DoubleBuffer.eof, b.getc());
+      assertEquals(DoubleBuffer.EOF, b.getc());
       b.ungetc();
       assertEquals("abcdef", b.getString());
     } catch (IOException e2) {
@@ -171,11 +171,11 @@ public class DoubleBufferTest {
       assertEquals('4', b.getc());
       assertEquals('5', b.getc());
       assertEquals('6', b.getc());
-      assertEquals(DoubleBuffer.eof, b.getc());
+      assertEquals(DoubleBuffer.EOF, b.getc());
       b.ungetc();
       b.ungetc();
       assertEquals('6', b.getc());
-      assertEquals(DoubleBuffer.eof, b.getc());
+      assertEquals(DoubleBuffer.EOF, b.getc());
     } catch (IOException e) {
       e.printStackTrace();
     }

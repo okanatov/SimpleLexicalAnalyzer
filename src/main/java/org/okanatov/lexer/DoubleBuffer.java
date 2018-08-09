@@ -1,11 +1,11 @@
 package org.okanatov.lexer;
 
-import java.io.StringReader;
 import java.io.IOException;
-import java.util.Queue;
+import java.io.StringReader;
 import java.util.LinkedList;
-import org.apache.logging.log4j.Logger;
+import java.util.Queue;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This is a double buffer class. It reads characters from {@link StringReader} passed in the class
@@ -15,7 +15,7 @@ import org.apache.logging.log4j.LogManager;
  * are returned to an application. The first half of the buffer is loaded, then.
  */
 final public class DoubleBuffer {
-  public static final int eof = 256;
+  public static final int EOF = 256;
 
   private static Logger logger = LogManager.getLogger(DoubleBuffer.class);
 
@@ -31,21 +31,22 @@ final public class DoubleBuffer {
   private Queue<Integer> loadedHalves = new LinkedList<>();
 
   /**
-   * Takes size of a half of the buffer, i.e. the total buffer will be twice more, and {@link StringReader}
-   * object to read characters from.
+   * Taking size of a half of the buffer and the characters source
+   * {@link StringReader}, returns the buffer object.
    *
-   *  @param s size of a half of the buffer. The total buffer size consisting of two halves is twice more
-   *  @param r {@link StringReader} object to read characters from
+   *  @param size size of a half of the buffer. The total buffer size
+   *              consisting of two halves is twice more.
+   *  @param source {@link StringReader} object to read characters from.
    */
-  public DoubleBuffer(int s, StringReader r) throws IOException {
-    logger.traceEntry("Ctor: {}, {}", s, r);
+  public DoubleBuffer(final int size, final StringReader source) throws IOException {
+    logger.traceEntry("Ctor: {}, {}", size, source);
 
     // Always check functions input
-    assert s != 0;
-    assert r != null;
+    assert size != 0;
+    assert source != null;
 
-    size = s;
-    source = r;
+    this.size = size;
+    this.source = source;
 
     startOfFirst = 0;
     endOfFirst = size;
@@ -53,19 +54,18 @@ final public class DoubleBuffer {
     endOfSecond = size * 2 + 1;
 
     buffer = new char[size * 2 + 2];
-
     load(startOfFirst);
 
-    logger.exit();
+    logger.traceExit();
   }
 
   /** 
    * Returns the next character from the internal buffer.
-   * In case DoubleBuffer.eof is reached at end of the first buffer half or
+   * In case DoubleBuffer.EOF is reached at end of the first buffer half or
    * at end of the second one, then reloads the opposite half. Returns
-   * DoubleBuffer.eof at once if this character is reached not at end of the halfs.
+   * DoubleBuffer.EOF at once if this character is reached not at end of the halfs.
    *
-   * @return the next character from the buffer or DoubleBuffer.eof if EOF is reached.
+   * @return the next character from the buffer or DoubleBuffer.EOF if EOF is reached.
    */
   public char getc() throws IOException, Error {
     logger.traceEntry("getc");
@@ -73,11 +73,11 @@ final public class DoubleBuffer {
     char ch = buffer[forward++];
 
     switch (ch) {
-      case eof:
+      case EOF:
         if (forward == endOfFirst + 1) {
           logger.debug("EOF found at end of the first buffer. Loading the second...");
 
-          if (begin >= startOfSecond && begin < endOfSecond) {
+          if (isInSecondHalf(begin)) {
             forward--;
             throw new Error("Buffer overflown");
           } else {
@@ -99,7 +99,7 @@ final public class DoubleBuffer {
         } else if (forward == endOfSecond + 1) {
           logger.debug("EOF found at end of the second buffer. Loading the first...");
 
-          if (begin >= startOfFirst && begin < endOfFirst) {
+          if (isInFirstHalf(begin)) {
             forward--;
             throw new Error("Buffer overflown");
           } else {
@@ -120,13 +120,13 @@ final public class DoubleBuffer {
         } else {
           logger.debug("EOF found. Quiting...");
 
-          logger.exit();
-          return eof;
+          logger.traceExit();
+          return EOF;
         }
       default:
         logger.debug("Non-EOF found: {}", ch);
 
-        logger.exit(ch);
+        logger.traceExit(ch);
         return ch;
     }
   }
@@ -139,45 +139,51 @@ final public class DoubleBuffer {
   public int getSize() {
     logger.traceEntry("getSize");
 
-    if(ArePointersInSameHalf()) {
+    int size;
+
+    if (arePointersInSameHalf()) {
       logger.debug("Begin and forward are in same half");
-      if (forward < begin) {
-        throw new Error("Buffer overflown");
-      }
-      return forward - begin;
+
+      assert begin <= forward;
+
+      size = forward - begin;
     } else {
-      if(begin >= startOfFirst && begin < endOfFirst) {
+      if (isInFirstHalf(begin)) {
         logger.debug("Begin and forward are not in same half. Begin in the first half");
-        return forward - begin - 1;
+
+        size = forward - begin - 1;
       } else {
         logger.debug("Begin and forward are not in same half. Begin in the second half");
-        return endOfSecond - (begin - forward);
+
+        size = endOfSecond - (begin - forward);
       }
     }
+
+    return size;
   }
 
   /**
-   * Returns a string of characters located between the begin and the forward pointers. Makes begin point
-   * to the same position as forward does.
+   * Returns a string of characters located between the begin and
+   * the forward pointers. Makes begin point to the same position
+   * as forward does.
    *
-   * @return a string of characters located between the begin and the forward pointers
+   * @return a string of characters located between the begin and
+   *         the forward pointers.
    */
   public String getString() {
     logger.traceEntry("getString");
 
-    String result = "";
-    String buffer = new String(this.buffer); // Convert buffer array to String
+    String result;
+    final String buffer = new String(this.buffer); // Convert buffer array to String
 
-    if(ArePointersInSameHalf()) {
+    if (arePointersInSameHalf()) {
       logger.debug("Begin and forward are in same half");
 
-      if (forward < begin) {
-        throw new Error("Buffer overflown");
-      }
+      assert begin <= forward;
 
       result = buffer.substring(begin, forward);
     } else {
-      if(begin >= startOfFirst && begin < endOfFirst) {
+      if (isInFirstHalf(begin)) {
         logger.debug("Begin and forward are not in same half. Begin in the first half");
 
         result = buffer.substring(begin, endOfFirst) + buffer.substring(startOfSecond, forward);
@@ -190,19 +196,20 @@ final public class DoubleBuffer {
 
     begin = forward;
 
-    logger.exit(result);
+    logger.traceExit(result);
     return result;
   }
 
   /**
-   * Returns one last-read character back to the buffer so that next getc() will return it again.
+   * Returns one last-read character back to the buffer so that
+   * next getc() will return it again.
    */
   public void ungetc() {
     logger.traceEntry("ungetc");
 
     forward = (endOfSecond + 1 + (forward - 1)) % (endOfSecond + 1);
 
-    if (buffer[forward] == DoubleBuffer.eof) {
+    if (buffer[forward] == DoubleBuffer.EOF) {
       if (forward == endOfFirst) {
         loadedHalves.add(2);
         --forward;
@@ -214,26 +221,36 @@ final public class DoubleBuffer {
       }
     }
 
-    logger.exit();
+    logger.traceExit();
+  }
+
+  /**
+   * Checks if a pos is in the first buffer half or not.
+   *
+   * @return true if the pos is in the first half, false otherwise.
+   */
+  private boolean isInFirstHalf(final int pos) {
+    return pos >= startOfFirst && pos <= endOfFirst;
+  }
+
+  /**
+   * Checks if a pos is in the second buffer half or not.
+   *
+   * @return true if the pos is in the second half, false otherwise.
+   */
+  private boolean isInSecondHalf(final int pos) {
+    return pos >= startOfSecond && pos <= endOfSecond;
   }
 
   /**
    * Checks if the begin and forward pointers are in the same half.
    *
-   * @return true if both pointers are in the same half, false otherwise
+   * @return true if both pointers are in the same half, false otherwise.
    */
-  private boolean ArePointersInSameHalf() {
-    if ((begin >= startOfFirst && begin <= endOfFirst) &&       // We can create a method to check
-        (forward >= startOfFirst && forward <= endOfFirst)) {   // whether a pointer is in first half or not
-      return true;
-        }
-
-    if ((begin >= startOfSecond && begin <= endOfSecond) &&
-        (forward >= startOfSecond && forward <= endOfSecond)) {
-      return true;
-        }
-
-    return false;
+  private boolean arePointersInSameHalf() {
+    return isInFirstHalf(begin) && isInFirstHalf(forward)
+           ||
+           isInSecondHalf(begin) && isInSecondHalf(forward);
   }
 
   /** 
@@ -242,18 +259,19 @@ final public class DoubleBuffer {
    *
    * @param pos Offset at which to start writing characters in the buffer
    */
-  private void load(int pos) throws IOException {
+  private void load(final int pos) throws IOException {
     logger.traceEntry("load: {}", pos);
 
-    assert((pos == startOfFirst) || (pos == startOfSecond));
+    assert pos == startOfFirst || pos == startOfSecond;
 
-    int len = source.read(buffer, pos, size);
+    final int len = source.read(buffer, pos, size);
 
     if (len <= 0) {
       logger.debug("End of the stream has been reached");
-      buffer[pos] = eof;
+
+      buffer[pos] = EOF;
     } else {
-      buffer[pos + len] = eof;
+      buffer[pos + len] = EOF;
     }
 
     if (pos == startOfFirst) {
@@ -262,6 +280,6 @@ final public class DoubleBuffer {
       loadedHalves.add(2);
     }
 
-    logger.exit();
+    logger.traceExit();
   }
 }
