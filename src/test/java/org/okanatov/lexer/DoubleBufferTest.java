@@ -2,11 +2,10 @@ package org.okanatov.lexer;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.StringReader;
 import java.io.IOException;
-import org.junit.Before;
-import org.junit.Test;
+import java.io.StringReader;
 import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * This class "unit"tests the {@DoubleBuffer} class.

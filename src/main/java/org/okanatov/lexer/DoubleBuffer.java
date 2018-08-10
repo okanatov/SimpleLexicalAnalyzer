@@ -8,13 +8,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This is a double buffer class. It reads characters from {@link StringReader} passed in the class
- * constructor and keeps them in an internal buffer. The class considers the buffer divided in to
- * same halfs. If all the characters from the first half are returned to an application, the second
- * half is filled in with new characters. The same thing is if the characters from the second half
- * are returned to an application. The first half of the buffer is loaded, then.
+ * Double buffer class.
+ * It reads characters from {@link StringReader} and keeps them in an internal buffer.
+ * The internal buffer is divided in to 2 halves. As all the characters from one half
+ * are returned to an application, the other half is filled up with new characters.
  */
-final public class DoubleBuffer {
+public final class DoubleBuffer {
   public static final int EOF = 256;
 
   private static Logger logger = LogManager.getLogger(DoubleBuffer.class);
@@ -31,8 +30,9 @@ final public class DoubleBuffer {
   private Queue<Integer> loadedHalves = new LinkedList<>();
 
   /**
-   * Taking size of a half of the buffer and the characters source
-   * {@link StringReader}, returns the buffer object.
+   * Takes size of a half of the internal buffer and
+   * the characters source {@link StringReader},
+   * returns the buffer object.
    *
    *  @param size size of a half of the buffer. The total buffer size
    *              consisting of two halves is twice more.
@@ -61,9 +61,9 @@ final public class DoubleBuffer {
 
   /** 
    * Returns the next character from the internal buffer.
-   * In case DoubleBuffer.EOF is reached at end of the first buffer half or
-   * at end of the second one, then reloads the opposite half. Returns
-   * DoubleBuffer.EOF at once if this character is reached not at end of the halfs.
+   * In case DoubleBuffer.EOF is reached at end of any halves, then reloads
+   * the other half. Returns DoubleBuffer.EOF at once if this character
+   * is reached not at end of the halves.
    *
    * @return the next character from the buffer or DoubleBuffer.EOF if EOF is reached.
    */
