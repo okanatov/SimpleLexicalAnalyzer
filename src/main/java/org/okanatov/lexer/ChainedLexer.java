@@ -7,11 +7,14 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.okanatov.lexer.Utils;
+import java.util.List;
 
 public class ChainedLexer implements Iterable<Token> {
     private final ArrayList<Token> tokens = new ArrayList<>();
     private StringBuilder buffer = new StringBuilder("");
     private final Pattern pattern;
+    private final String matching_text;
     private InputStream source;
     private ChainedLexer chainedLexer;
 
@@ -36,17 +39,37 @@ public class ChainedLexer implements Iterable<Token> {
                 int ch;
                 if ((ch = source.read()) != -1) {
                     buffer.append((char) ch);
-                    Matcher matcher = pattern.matcher(buffer);
-                    if (matcher.find()) {
-                        if (matcher.end() < buffer.length()) {
-                            tokens.add(new Token(buffer.substring(0, matcher.start()), Token.Type.UNKNOWN));
-                            tokens.add(new Token(buffer.substring(matcher.start(), matcher.end()), Token.Type.KNOWN));
-                            buffer.delete(0, matcher.end());
+
+                    List<String> results = Utils.split(matching_text, buffer.toString());
+
+                    if (results.size() > 2) {
+
+                      tokens.add(new Token(results.get(0), Token.Type.UNKNOWN));
+                      tokens.add(new Token(results.get(1), Token.Type.KNOWN));
+
+                      buffer = null;
+                      buffer = new StringBuilder("");
+
+                      for (int i = 2; i < results.size(); i++) {
+                        buffer.append(results.get(i));
+                      }
+                    } else if (results.size() == 2) {
+                      Matcher matcher = pattern.matcher(results.get(0));
+                      if (matcher.matches()) {
+                        tokens.add(new Token(results.get(0), Token.Type.KNOWN));
+
+                        buffer = null;
+                        buffer = new StringBuilder("");
+
+                        for (int i = 1; i < results.size(); i++) {
+                          buffer.append(results.get(i));
                         }
+                      }
                     }
                 }
                 if (ch == -1) {
                     tokens.add(new Token(buffer.toString(), Token.Type.UNKNOWN));
+                    buffer = null;
                     buffer = new StringBuilder("");
                 }
             }
@@ -96,6 +119,7 @@ public class ChainedLexer implements Iterable<Token> {
 
     private ChainedLexer(String matchingString) {
         pattern = Pattern.compile(matchingString);
+        this.matching_text = matchingString;
     }
 
     private void removeEmptyTokens() {
