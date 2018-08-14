@@ -15,7 +15,7 @@ public class UtilsTest {
     final String pattern = "bb";
 
     List<String> result = Utils.split(pattern, text);
-    assertEquals(5, result.size());
+    assertEquals(5,    result.size());
     assertEquals("aa", result.get(0));
     assertEquals("bb", result.get(1));
     assertEquals("aa", result.get(2));
@@ -29,11 +29,12 @@ public class UtilsTest {
     final String pattern = "bb";
 
     List<String> result = Utils.split(pattern, text);
-    assertEquals(4, result.size());
+    assertEquals(5,    result.size());
     assertEquals("aa", result.get(0));
     assertEquals("bb", result.get(1));
     assertEquals("aa", result.get(2));
     assertEquals("bb", result.get(3));
+    assertEquals("",   result.get(4));
   }
 
   @Test
@@ -42,7 +43,7 @@ public class UtilsTest {
     final String pattern = "bb";
 
     List<String> result = Utils.split(pattern, text);
-    assertEquals(3, result.size());
+    assertEquals(3,    result.size());
     assertEquals("aa", result.get(0));
     assertEquals("bb", result.get(1));
     assertEquals("aab", result.get(2));
@@ -54,10 +55,12 @@ public class UtilsTest {
     final String pattern = "bb";
 
     List<String> result = Utils.split(pattern, text);
-    assertEquals(3, result.size());
-    assertEquals("bb", result.get(0));
-    assertEquals("aa", result.get(1));
-    assertEquals("bb", result.get(2));
+    assertEquals(5,    result.size());
+    assertEquals("",   result.get(0));
+    assertEquals("bb", result.get(1));
+    assertEquals("aa", result.get(2));
+    assertEquals("bb", result.get(3));
+    assertEquals("",   result.get(4));
   }
 
   @Test
@@ -66,7 +69,7 @@ public class UtilsTest {
     final String pattern = "bb";
 
     List<String> result = Utils.split(pattern, text);
-    assertEquals(1, result.size());
+    assertEquals(1,        result.size());
     assertEquals("ccaacc", result.get(0));
   }
 }

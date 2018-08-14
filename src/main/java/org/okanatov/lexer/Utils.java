@@ -12,20 +12,15 @@ public class Utils {
     Pattern p = Pattern.compile(pattern);
     Matcher m = p.matcher(text);
 
-    int ppos = 0;
+    int last_match = 0;
 
     while (m.find()) {
-      if (m.start() != ppos) {
-        result.add(text.substring(ppos, m.start()));
-      }
-
+      result.add(text.substring(last_match, m.start()));
       result.add(text.substring(m.start(), m.end()));
-      ppos = m.end();
+      last_match = m.end();
     }
 
-    if (ppos != text.length()) {
-      result.add(text.substring(ppos, text.length()));
-    }
+    result.add(text.substring(last_match, text.length()));
 
     return result;
   }
