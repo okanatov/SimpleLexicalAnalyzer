@@ -20,7 +20,9 @@ public class Utils {
       last_match = m.end();
     }
 
-    result.add(text.substring(last_match, text.length()));
+    if (last_match < text.length()) {
+      result.add(text.substring(last_match, text.length()));
+    }
 
     return result;
   }

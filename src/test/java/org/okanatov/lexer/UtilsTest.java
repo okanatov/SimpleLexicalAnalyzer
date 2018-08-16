@@ -29,12 +29,11 @@ public class UtilsTest {
     final String pattern = "bb";
 
     List<String> result = Utils.split(pattern, text);
-    assertEquals(5,    result.size());
+    assertEquals(4,    result.size());
     assertEquals("aa", result.get(0));
     assertEquals("bb", result.get(1));
     assertEquals("aa", result.get(2));
     assertEquals("bb", result.get(3));
-    assertEquals("",   result.get(4));
   }
 
   @Test
@@ -55,12 +54,11 @@ public class UtilsTest {
     final String pattern = "bb";
 
     List<String> result = Utils.split(pattern, text);
-    assertEquals(5,    result.size());
+    assertEquals(4,    result.size());
     assertEquals("",   result.get(0));
     assertEquals("bb", result.get(1));
     assertEquals("aa", result.get(2));
     assertEquals("bb", result.get(3));
-    assertEquals("",   result.get(4));
   }
 
   @Test
