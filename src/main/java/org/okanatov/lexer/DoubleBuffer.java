@@ -42,6 +42,7 @@ public final class DoubleBuffer {
     logger.traceEntry("Ctor: {}, {}", size, source);
 
     // Always check functions input
+    // TODO: Assertions should verify conditions. Wrong parameters should be handled by Exceptions.
     assert size != 0;
     assert source != null;
 
@@ -77,7 +78,7 @@ public final class DoubleBuffer {
         if (forward == endOfFirst + 1) {
           logger.debug("EOF found at end of the first buffer. Loading the second...");
 
-          if (isInSecondHalf(begin)) {
+          if (isInSecondHalf(begin)) { // TODO: extract to a separate method
             forward--;
             throw new Error("Buffer overflown");
           } else {
@@ -101,7 +102,7 @@ public final class DoubleBuffer {
 
           if (isInFirstHalf(begin)) {
             forward--;
-            throw new Error("Buffer overflown");
+            throw new Error("Buffer overflown"); // TODO: Error shouldn't be thrown in a code
           } else {
             loadedHalves.remove();
 
@@ -274,7 +275,7 @@ public final class DoubleBuffer {
       buffer[pos + len] = EOF;
     }
 
-    if (pos == startOfFirst) {
+    if (pos == startOfFirst) { // TODO: move it from here to the getc method
       loadedHalves.add(1);
     } else {
       loadedHalves.add(2);
