@@ -1,7 +1,7 @@
 package org.okanatov.lexer;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -17,23 +17,23 @@ public class ChainedLexer implements Iterable<Token> {
   public ChainedLexer(Object source, String matchingString) {
     this(matchingString);
 
-    if (source instanceof InputStream) {
-      this.source = (InputStream) source;
+    if (source instanceof StringReader) {
+      this.source = new Buffer(10, (StringReader) source);
     } else {
       this.source = (ChainedLexer) source;
     }
   }
 
   public Token readToken() {
-    if (source instanceof InputStream) return readTokenFromStream();
-    else                               return readTokenFromLexer();
+    if (source instanceof Buffer) return readTokenFromStream();
+    else                          return readTokenFromLexer();
   }
 
   private Token readTokenFromStream() {
     try {
       while (tokens.isEmpty()) {
         int ch;
-        if ((ch = ((InputStream) source).read()) != -1) {
+        if ((ch = ((Buffer) source).getc()) != '0') {
           buffer.append((char) ch);
 
           List<String> results = Utils.split(matching_text, buffer.toString());
@@ -51,7 +51,7 @@ public class ChainedLexer implements Iterable<Token> {
             }
           }
         }
-        if (ch == -1) {
+        if (ch == '0') {
           tokens.add(new Token(buffer.toString(), Token.Type.UNKNOWN));
           buffer = null;
           buffer = new StringBuilder("");

@@ -11,7 +11,7 @@ public class BufferTest
     private Buffer buffer;
 
     @Test
-    public void testBufferReturnsOneCharAtTime() throws IOException
+    public void returnsOneCharacterAtTimeTillEof() throws IOException
     {
         Buffer b = new Buffer(5, new StringReader("0123456789abcdef"));
         assertEquals('0', b.getc());
@@ -31,6 +31,33 @@ public class BufferTest
         assertEquals('e', b.getc());
         assertEquals('f', b.getc());
         assertEquals('0', b.getc());
+        assertEquals('0', b.getc());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void firstUngetcFails() throws IOException
+    {
+        Buffer b = new Buffer(5, new StringReader("0123"));
+        b.ungetc();
+    }
+
+    @Test
+    public void ungetcCharactersAndReturnThemAgain() throws IOException
+    {
+        Buffer b = new Buffer(2, new StringReader("0123"));
+        assertEquals('0', b.getc());
+        assertEquals('1', b.getc());
+        b.ungetc();
+        assertEquals('1', b.getc());
+        b.ungetc();
+        assertEquals('1', b.getc());
+        assertEquals('2', b.getc());
+        b.ungetc();
+        assertEquals('2', b.getc());
+        assertEquals('3', b.getc());
+        assertEquals('0', b.getc());
+        b.ungetc();
+        assertEquals('3', b.getc());
         assertEquals('0', b.getc());
     }
 }

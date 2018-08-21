@@ -22,16 +22,21 @@ class Buffer
 
     public char getc() throws IOException {
         if (pos == len) {
-            len = reader.read(current, 0, bufferSize);
-            if (len == -1) {
-                pos = -1;
+            int r = reader.read(current, 0, bufferSize);
+            if (r == -1) {
                 return '0';
             }
             pos = 0;
+            len = r;
         }
 
         char ch = current[pos++];
 
         return ch;
+    }
+
+    public void ungetc() {
+        assert pos > 0;
+        pos--;
     }
 }

@@ -3,7 +3,7 @@ package org.okanatov.lexer;
 import org.junit.Test;
 import org.junit.Ignore;
 
-import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,7 +13,7 @@ public class ChainedLexerTest {
   @Test
   public void testV() {
     ChainedLexer chainedLexer = new ChainedLexer(
-        new ByteArrayInputStream("IVVVX".getBytes()),
+        new StringReader("IVVVX"),
         "V+");
 
     token = chainedLexer.readToken();
@@ -33,7 +33,7 @@ public class ChainedLexerTest {
   public void testBraces() throws Exception {
     ChainedLexer chainedLexer = new ChainedLexer(
         new ChainedLexer(
-          new ByteArrayInputStream("a<b>c".getBytes()),
+          new StringReader("a<b>c"),
           "<"),
         ">");
 
@@ -59,7 +59,7 @@ public class ChainedLexerTest {
 
   @Test
   public void testLookAheadAndBehind() throws Exception {
-    ChainedLexer chainedLexer = new ChainedLexer(new ByteArrayInputStream("IIVVXX".getBytes()), "(?<=I)V+(?=X)");
+    ChainedLexer chainedLexer = new ChainedLexer(new StringReader("IIVVXX"), "(?<=I)V+(?=X)");
 
     token = chainedLexer.readToken();
     assertEquals("II", token.toString());
@@ -80,7 +80,7 @@ public class ChainedLexerTest {
       new ChainedLexer(
           new ChainedLexer(
             new ChainedLexer(
-              new ByteArrayInputStream("IIIVX".getBytes()), "IV"),
+              new StringReader("IIIVX"), "IV"),
             "II"),
           "X");
 
@@ -92,7 +92,7 @@ public class ChainedLexerTest {
 
   @Test
   public void test4() {
-    ChainedLexer chainedLexer = new ChainedLexer(new ByteArrayInputStream("IVX".getBytes()), "IV");
+    ChainedLexer chainedLexer = new ChainedLexer(new StringReader("IVX"), "IV");
 
     token = chainedLexer.readToken();
     assertEquals("IV", token.toString());
@@ -110,7 +110,7 @@ public class ChainedLexerTest {
       new ChainedLexer(
           new ChainedLexer(
             new ChainedLexer(
-              new ByteArrayInputStream("IIIVX".getBytes()), "IV"),
+              new StringReader("IIIVX"), "IV"),
             "I{2}"),
           "X");
 
