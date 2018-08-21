@@ -4,66 +4,65 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
-import org.okanatov.lexer.Utils;
 import java.util.List;
+import java.util.NoSuchElementException;
+import org.okanatov.lexer.Buffer;
+import org.okanatov.lexer.Utils;
 
 public class ChainedLexer implements Iterable<Token> {
   private final List<Token> tokens = new ArrayList<>();
   private StringBuilder buffer = new StringBuilder("");
-  private final String matching_text;
+  private final String matchingText;
   private Object source;
 
   public ChainedLexer(Object source, String matchingString) {
-    this(matchingString);
-
     if (source instanceof StringReader) {
-      this.source = new Buffer(10, (StringReader) source);
+      this.source = new Buffer(4, (StringReader) source);
     } else {
       this.source = (ChainedLexer) source;
     }
+
+    this.matchingText = matchingString;
   }
 
-  public Token readToken() {
-    if (source instanceof Buffer) return readTokenFromStream();
-    else                          return readTokenFromLexer();
+  public Token readToken() throws IOException {
+    return source instanceof Buffer ? readTokenFromStream() : readTokenFromLexer();
   }
 
-  private Token readTokenFromStream() {
-    try {
-      while (tokens.isEmpty()) {
-        int ch;
-        if ((ch = ((Buffer) source).getc()) != '0') {
-          buffer.append((char) ch);
+  private Token readTokenFromStream() throws IOException {
+    while (tokens.isEmpty()) {
+      int ch;
+      if ((ch = ((Buffer) source).getc()) != Buffer.EOF) {
+        buffer.append((char) ch);
 
-          List<String> results = Utils.split(matching_text, buffer.toString());
+        List<String> results = Utils.split(matchingText, buffer.toString());
 
-          if (results.size() > 2) {
+        if (results.size() > 2) {
 
-            tokens.add(new Token(results.get(0), Token.Type.UNKNOWN));
-            tokens.add(new Token(results.get(1), Token.Type.KNOWN));
+          tokens.add(new Token(results.get(0), Token.Type.UNKNOWN));
+          tokens.add(new Token(results.get(1), Token.Type.KNOWN));
 
-            buffer = null;
-            buffer = new StringBuilder("");
-
-            for (int i = 2; i < results.size(); i++) {
-              buffer.append(results.get(i));
-            }
-          }
-        }
-        if (ch == '0') {
-          tokens.add(new Token(buffer.toString(), Token.Type.UNKNOWN));
           buffer = null;
           buffer = new StringBuilder("");
+
+          for (int i = 2; i < results.size(); i++) {
+            buffer.append(results.get(i));
+          }
         }
       }
-    } catch (IOException e) {
-      e.printStackTrace();
+
+      if (ch == Buffer.EOF) {
+        tokens.add(new Token(buffer.toString(), Token.Type.UNKNOWN));
+        buffer = null;
+        buffer = new StringBuilder("");
+      }
     }
 
     removeEmptyTokens();
-    if (!tokens.isEmpty())
+    if (!tokens.isEmpty()) {
       return tokens.remove(0);
+    }
+
     return null;
   }
 
@@ -72,14 +71,17 @@ public class ChainedLexer implements Iterable<Token> {
     Iterator<Token> iterator = ((ChainedLexer) source).iterator();
 
     while (tokens.isEmpty()) {
-      if (iterator.hasNext())
+      if (iterator.hasNext()) {
         token = iterator.next();
-      else
+      } else {
         return null;
+      }
 
-      if (token.getType() == Token.Type.KNOWN) return token;
+      if (token.getType() == Token.Type.KNOWN) {
+        return token;
+      }
 
-      List<String> results = Utils.split(matching_text, token.toString());
+      List<String> results = Utils.split(matchingText, token.toString());
 
       if (results.size() > 2) {
         tokens.add(new Token(results.get(0), Token.Type.UNKNOWN));
@@ -94,18 +96,16 @@ public class ChainedLexer implements Iterable<Token> {
     }
 
     removeEmptyTokens();
-    if (!tokens.isEmpty())
+    if (!tokens.isEmpty()) {
       return tokens.remove(0);
+    }
+
     return null;
   }
 
   @Override
   public Iterator<Token> iterator() {
     return new LexerIterator();
-  }
-
-  private ChainedLexer(String matchingString) {
-    this.matching_text = matchingString;
   }
 
   private void removeEmptyTokens() {
@@ -119,7 +119,11 @@ public class ChainedLexer implements Iterable<Token> {
 
     @Override
     public boolean hasNext() {
-      token = ChainedLexer.this.readToken();
+      try {
+        token = ChainedLexer.this.readToken();
+      } catch (IOException e) {
+      }
+
       read = true;
       return token != null;
     }
@@ -130,16 +134,20 @@ public class ChainedLexer implements Iterable<Token> {
         read = false;
         return checkTokenValueAndReturn();
       } else {
-        token = ChainedLexer.this.readToken();
+        try {
+          token = ChainedLexer.this.readToken();
+        } catch (IOException e) {
+        }
         return checkTokenValueAndReturn();
       }
     }
 
     private Token checkTokenValueAndReturn() {
-      if (token != null)
+      if (token != null) {
         return token;
-      else
-        throw new NoSuchElementException();
+      }
+
+      throw new NoSuchElementException();
     }
 
     @Override

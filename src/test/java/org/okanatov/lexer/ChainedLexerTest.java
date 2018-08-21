@@ -1,17 +1,16 @@
 package org.okanatov.lexer;
 
-import org.junit.Test;
-import org.junit.Ignore;
-
-import java.io.StringReader;
-
 import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.io.StringReader;
+import org.junit.Test;
 
 public class ChainedLexerTest {
   private Token token;
 
   @Test
-  public void testV() {
+  public void testV() throws IOException {
     ChainedLexer chainedLexer = new ChainedLexer(
         new StringReader("IVVVX"),
         "V+");
@@ -30,7 +29,7 @@ public class ChainedLexerTest {
   }
 
   @Test
-  public void testBraces() throws Exception {
+  public void testBraces() throws IOException, Exception {
     ChainedLexer chainedLexer = new ChainedLexer(
         new ChainedLexer(
           new StringReader("a<b>c"),
@@ -58,7 +57,7 @@ public class ChainedLexerTest {
   }
 
   @Test
-  public void testLookAheadAndBehind() throws Exception {
+  public void testLookAheadAndBehind() throws IOException,Exception {
     ChainedLexer chainedLexer = new ChainedLexer(new StringReader("IIVVXX"), "(?<=I)V+(?=X)");
 
     token = chainedLexer.readToken();
@@ -75,7 +74,7 @@ public class ChainedLexerTest {
   }
 
   @Test
-  public void testIteration() {
+  public void testIteration() throws IOException {
     ChainedLexer chainedLexer =
       new ChainedLexer(
           new ChainedLexer(
@@ -91,7 +90,7 @@ public class ChainedLexerTest {
   }
 
   @Test
-  public void test4() {
+  public void test4() throws IOException {
     ChainedLexer chainedLexer = new ChainedLexer(new StringReader("IVX"), "IV");
 
     token = chainedLexer.readToken();
@@ -105,7 +104,7 @@ public class ChainedLexerTest {
   }
 
   @Test
-  public void testComplex() {
+  public void testComplex() throws IOException {
     ChainedLexer chainedLexer =
       new ChainedLexer(
           new ChainedLexer(
