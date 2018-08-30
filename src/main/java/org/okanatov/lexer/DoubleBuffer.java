@@ -2,6 +2,7 @@ package org.okanatov.lexer;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.function.Predicate;
 import java.util.LinkedList;
 import java.util.Queue;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +29,8 @@ public final class DoubleBuffer {
   private int forward = 0;
   private int begin = 0;
   private Queue<Integer> loadedHalves = new LinkedList<>();
+  private Predicate<Integer> isInFirstHalf;
+  private Predicate<Integer> isInSecondHalf;
 
   /**
    * Takes size of a half of the internal buffer and
@@ -54,6 +57,9 @@ public final class DoubleBuffer {
     startOfSecond = size + 1;
     endOfSecond = size * 2 + 1;
 
+    isInFirstHalf = (pos) -> pos >= startOfFirst && pos <= endOfFirst;
+    isInSecondHalf = (pos) -> pos >= startOfSecond && pos <= endOfSecond;
+
     buffer = new char[size * 2 + 2];
     load(startOfFirst);
 
@@ -78,7 +84,7 @@ public final class DoubleBuffer {
         if (forward == endOfFirst + 1) {
           logger.debug("EOF found at end of the first buffer. Loading the second...");
 
-          if (isInSecondHalf(begin)) { // TODO: extract to a separate method
+          if (isInSecondHalf.test(begin)) { // TODO: extract to a separate method
             forward--;
             throw new Error("Buffer overflown");
           } else {
@@ -100,7 +106,7 @@ public final class DoubleBuffer {
         } else if (forward == endOfSecond + 1) {
           logger.debug("EOF found at end of the second buffer. Loading the first...");
 
-          if (isInFirstHalf(begin)) {
+          if (isInFirstHalf.test(begin)) {
             forward--;
             throw new Error("Buffer overflown"); // TODO: Error shouldn't be thrown in a code
           } else {
@@ -149,7 +155,7 @@ public final class DoubleBuffer {
 
       size = forward - begin;
     } else {
-      if (isInFirstHalf(begin)) {
+      if (isInFirstHalf.test(begin)) {
         logger.debug("Begin and forward are not in same half. Begin in the first half");
 
         size = forward - begin - 1;
@@ -184,7 +190,7 @@ public final class DoubleBuffer {
 
       result = buffer.substring(begin, forward);
     } else {
-      if (isInFirstHalf(begin)) {
+      if (isInFirstHalf.test(begin)) {
         logger.debug("Begin and forward are not in same half. Begin in the first half");
 
         result = buffer.substring(begin, endOfFirst) + buffer.substring(startOfSecond, forward);
@@ -226,32 +232,14 @@ public final class DoubleBuffer {
   }
 
   /**
-   * Checks if a pos is in the first buffer half or not.
-   *
-   * @return true if the pos is in the first half, false otherwise.
-   */
-  private boolean isInFirstHalf(final int pos) {
-    return pos >= startOfFirst && pos <= endOfFirst;
-  }
-
-  /**
-   * Checks if a pos is in the second buffer half or not.
-   *
-   * @return true if the pos is in the second half, false otherwise.
-   */
-  private boolean isInSecondHalf(final int pos) {
-    return pos >= startOfSecond && pos <= endOfSecond;
-  }
-
-  /**
    * Checks if the begin and forward pointers are in the same half.
    *
    * @return true if both pointers are in the same half, false otherwise.
    */
   private boolean arePointersInSameHalf() {
-    return isInFirstHalf(begin) && isInFirstHalf(forward)
+    return isInFirstHalf.test(begin) && isInFirstHalf.test(forward)
            ||
-           isInSecondHalf(begin) && isInSecondHalf(forward);
+           isInSecondHalf.test(begin) && isInSecondHalf.test(forward);
   }
 
   /** 
