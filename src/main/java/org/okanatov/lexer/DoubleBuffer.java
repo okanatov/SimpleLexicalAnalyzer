@@ -66,6 +66,10 @@ public final class DoubleBuffer {
     logger.traceExit();
   }
 
+  public DoubleBufferIterator iterator() {
+    return DoubleBuffer.this.new DoubleBufferIterator();
+  }
+
   /** 
    * Returns the next character from the internal buffer.
    * In case DoubleBuffer.EOF is reached at end of any halves, then reloads
@@ -270,5 +274,36 @@ public final class DoubleBuffer {
     }
 
     logger.traceExit();
+  }
+
+  public class DoubleBufferIterator {
+    private int forward;
+    private int begin;
+
+    public DoubleBufferIterator() {
+      logger.traceEntry("DoubleBufferIterator Ctor");
+      forward = 0;
+      begin = 0;
+      logger.traceExit();
+    }
+
+    public boolean hasNext() {
+      logger.traceEntry("hasNext");
+
+      if (buffer[forward] == EOF) {
+        logger.debug("EOF found");
+        logger.traceExit("false");
+        return false;
+      }
+
+      logger.traceExit("true");
+      return true;
+      }
+
+    public char next() {
+      logger.traceEntry("next");
+      logger.traceExit();
+      return buffer[forward++];
+    }
   }
 }
