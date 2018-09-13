@@ -2,6 +2,9 @@ package org.okanatov.lexer;
 
 import java.io.IOException;
 import java.io.StringReader;
+import org.okanatov.lexer.Node;
+import org.okanatov.lexer.SingleNode;
+import org.okanatov.lexer.AlternationNode;
 
 public class Parser {
   public static final int EOF = 256;
@@ -11,41 +14,41 @@ public class Parser {
 
   public Parser(String pattern) throws IOException {
     this.pattern = new StringReader(pattern);
-
-    while (lookahead == ' ') {
-      this.lookahead = (char) this.pattern.read();
-    }
+    passSpaces();
   }
 
-  public char parse() throws IOException {
+  public Node parse() throws IOException {
     return expr();
   }
 
-  private char expr() throws IOException {
+  private Node expr() throws IOException {
     return rest(term());
   }
 
-  private char term() throws IOException {
-    char result = EOF;
+  private Node term() throws IOException {
+    Node result;
 
     if (Character.isLetterOrDigit(lookahead)) {
-      result = lookahead;
+      result = new SingleNode(lookahead);
       match(lookahead);
     } else if (lookahead == '(') {
       match('(');
       result = expr();
       match(')');
     } else {
+      result = new SingleNode(' ');
+      // can't happen
       // throw new IOException()
     }
     return result;
   }
 
-  private char rest(char left) throws IOException {
+  private Node rest(Node left) throws IOException {
     if (lookahead == '|') {
       match('|');
-      System.out.println("ALT");
-      return expr();
+      Node right = expr();
+      left = new AlternationNode(left, right);
+      left = rest(left);
     }
     return left;
   }
@@ -53,12 +56,17 @@ public class Parser {
   private boolean match(char ch) throws IOException {
     if (ch == lookahead) {
       lookahead = (char) this.pattern.read();
-      while (lookahead == ' ') {
-        lookahead = (char) this.pattern.read();
-      }
+      passSpaces();
+
       return true;
     } else {
       return false;
+    }
+  }
+
+  private void passSpaces() throws IOException {
+    while (lookahead == ' ') {
+    lookahead = (char) this.pattern.read();
     }
   }
 }
