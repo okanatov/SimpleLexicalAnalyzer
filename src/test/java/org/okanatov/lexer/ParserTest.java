@@ -14,34 +14,45 @@ public class ParserTest {
     assertEquals("SingleNode(a)", parser.parse().toString());
   }
 
-  @Ignore
   @Test
-  public void parsesCombination() throws IOException {
+  public void parsesConcatination() throws IOException {
     Parser parser = new Parser("ab");
-    assertEquals('a', parser.parse());
-    assertEquals('b', parser.parse());
+    assertEquals("ConcatinationNode(left: SingleNode(a), "
+               + "right: SingleNode(b))",
+               parser.parse().toString());
   }
 
-  @Ignore
   @Test
   public void parsesCombinationWithSpaces() throws IOException {
     Parser parser = new Parser("a bc d");
-    assertEquals('a', parser.parse());
-    assertEquals('b', parser.parse());
-    assertEquals('c', parser.parse());
-    assertEquals('d', parser.parse());
+    assertEquals("ConcatinationNode(left: ConcatinationNode(left: "
+               + "ConcatinationNode(left: ConcatinationNode(left: "
+               + "ConcatinationNode(left: SingleNode(a), right: "
+               + "SingleNode( )), right: SingleNode(b)), right: "
+               + "SingleNode(c)), right: SingleNode( )), right: "
+               + "SingleNode(d))",
+               parser.parse().toString());
   }
 
   @Test
   public void parsesAlternation() throws IOException {
     Parser parser = new Parser("a|b");
-    assertEquals("AlternationNode(left: SingleNode(a), right: SingleNode(b))", parser.parse().toString());
+    assertEquals("AlternationNode(left: SingleNode(a), "
+               + "right: SingleNode(b))",
+               parser.parse().toString());
   }
 
-  @Ignore
+  @Test
+  public void parsesSeveralAlternations() throws IOException {
+    Parser parser = new Parser("a|b|c");
+    assertEquals("AlternationNode(left: AlternationNode(left: SingleNode(a), "
+               + "right: SingleNode(b)), right: SingleNode(c))",
+               parser.parse().toString());
+  }
+
   @Test
   public void parsesExpressionInBraces() throws IOException {
     Parser parser = new Parser("(a)");
-    assertEquals('a', parser.parse());
+    assertEquals("SingleNode(a)", parser.parse().toString());
   }
 }

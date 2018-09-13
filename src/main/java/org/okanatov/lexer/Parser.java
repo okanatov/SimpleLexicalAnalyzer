@@ -2,19 +2,18 @@ package org.okanatov.lexer;
 
 import java.io.IOException;
 import java.io.StringReader;
+import org.okanatov.lexer.AlternationNode;
+import org.okanatov.lexer.ConcatinationNode;
 import org.okanatov.lexer.Node;
 import org.okanatov.lexer.SingleNode;
-import org.okanatov.lexer.AlternationNode;
 
 public class Parser {
-  public static final int EOF = 256;
-
   private StringReader pattern;
-  private char lookahead = ' ';
+  private char lookahead;
 
   public Parser(String pattern) throws IOException {
     this.pattern = new StringReader(pattern);
-    passSpaces();
+    lookahead = (char) this.pattern.read();
   }
 
   public Node parse() throws IOException {
@@ -28,7 +27,7 @@ public class Parser {
   private Node term() throws IOException {
     Node result;
 
-    if (Character.isLetterOrDigit(lookahead)) {
+    if (Character.isLetterOrDigit(lookahead) || Character.isWhitespace(lookahead)) {
       result = new SingleNode(lookahead);
       match(lookahead);
     } else if (lookahead == '(') {
@@ -36,37 +35,38 @@ public class Parser {
       result = expr();
       match(')');
     } else {
-      result = new SingleNode(' ');
       // can't happen
-      // throw new IOException()
+      throw new IOException();
     }
     return result;
   }
 
-  private Node rest(Node left) throws IOException {
-    if (lookahead == '|') {
-      match('|');
-      Node right = expr();
-      left = new AlternationNode(left, right);
-      left = rest(left);
+  private Node rest(Node node) throws IOException {
+    Node left = node;
+
+    while (true) {
+      if (lookahead == '|') {
+        match('|');
+        Node right = term();
+        left = new AlternationNode(left, right);
+      } else if (Character.isLetterOrDigit(lookahead) || Character.isWhitespace(lookahead)) {
+        Node right = term();
+        left = new ConcatinationNode(left, right);
+      } else {
+        break;
+      }
     }
+
     return left;
   }
 
   private boolean match(char ch) throws IOException {
     if (ch == lookahead) {
       lookahead = (char) this.pattern.read();
-      passSpaces();
 
       return true;
     } else {
       return false;
-    }
-  }
-
-  private void passSpaces() throws IOException {
-    while (lookahead == ' ') {
-    lookahead = (char) this.pattern.read();
     }
   }
 }

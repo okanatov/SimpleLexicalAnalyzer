@@ -2,11 +2,11 @@ package org.okanatov.lexer;
 
 import org.okanatov.lexer.Node;
 
-public final class AlternationNode implements Node {
+public final class ConcatinationNode implements Node {
   private Node left;
   private Node right;
 
-  public AlternationNode(final Node left, final Node right) {
+  public ConcatinationNode(final Node left, final Node right) {
     this.left = left;
     this.right = right;
   }
@@ -15,7 +15,7 @@ public final class AlternationNode implements Node {
   }
 
   public String toString() {
-    return new String("AlternationNode(left: " + left.toString()
+    return new String("ConcatinationNode(left: " + left.toString()
         + ", right: " + right.toString() + ")");
   }
 }

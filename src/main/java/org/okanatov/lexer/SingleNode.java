@@ -2,12 +2,12 @@ package org.okanatov.lexer;
 
 import org.okanatov.lexer.Node;
 
-final public class SingleNode implements Node {
-    private char ch;
+public final class SingleNode implements Node {
+  private char ch;
 
-    public SingleNode(final char ch) {
-        this.ch = ch;
-    }
+  public SingleNode(final char ch) {
+    this.ch = ch;
+  }
 
   public void build() {
   }
