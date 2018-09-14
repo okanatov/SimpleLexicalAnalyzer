@@ -6,6 +6,7 @@ import org.okanatov.lexer.AlternationNode;
 import org.okanatov.lexer.ConcatinationNode;
 import org.okanatov.lexer.Node;
 import org.okanatov.lexer.SingleNode;
+import org.okanatov.lexer.StarNode;
 
 public class Parser {
   private StringReader pattern;
@@ -47,10 +48,18 @@ public class Parser {
     while (true) {
       if (lookahead == '|') {
         match('|');
-        Node right = term();
+        Node right = expr();
         left = new AlternationNode(left, right);
       } else if (Character.isLetterOrDigit(lookahead) || Character.isWhitespace(lookahead)) {
         Node right = term();
+        left = new ConcatinationNode(left, right);
+      } else if (lookahead == '*') {
+        match('*');
+        left = new StarNode(left);
+      } else if (lookahead == '(') {
+        match('(');
+        Node right = expr();
+        match(')');
         left = new ConcatinationNode(left, right);
       } else {
         break;
@@ -63,7 +72,6 @@ public class Parser {
   private boolean match(char ch) throws IOException {
     if (ch == lookahead) {
       lookahead = (char) this.pattern.read();
-
       return true;
     } else {
       return false;

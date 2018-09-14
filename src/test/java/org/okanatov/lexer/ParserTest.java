@@ -43,10 +43,28 @@ public class ParserTest {
   }
 
   @Test
+  public void parsesComplexAlternation() throws IOException {
+    Parser parser = new Parser("ab|cd");
+    assertEquals("AlternationNode(left: ConcatinationNode(left: SingleNode(a), "
+               + "right: SingleNode(b)), right: ConcatinationNode(left: "
+               + "SingleNode(c), right: SingleNode(d)))",
+               parser.parse().toString());
+  }
+
+  @Test
   public void parsesSeveralAlternations() throws IOException {
     Parser parser = new Parser("a|b|c");
-    assertEquals("AlternationNode(left: AlternationNode(left: SingleNode(a), "
-               + "right: SingleNode(b)), right: SingleNode(c))",
+    assertEquals("AlternationNode(left: SingleNode(a), right: AlternationNode(left: SingleNode(b), "
+               + "right: SingleNode(c)))",
+               parser.parse().toString());
+  }
+
+  @Test
+  public void parsesAlternationsInBraces() throws IOException {
+    Parser parser = new Parser("a(b|c)d");
+    assertEquals("ConcatinationNode(left: ConcatinationNode(left: SingleNode(a), "
+               + "right: AlternationNode(left: SingleNode(b), right: SingleNode(c))), "
+               + "right: SingleNode(d))",
                parser.parse().toString());
   }
 
@@ -54,5 +72,18 @@ public class ParserTest {
   public void parsesExpressionInBraces() throws IOException {
     Parser parser = new Parser("(a)");
     assertEquals("SingleNode(a)", parser.parse().toString());
+  }
+
+  @Test
+  public void parsesStar() throws IOException {
+    Parser parser = new Parser("a*");
+    assertEquals("StarNode(SingleNode(a))", parser.parse().toString());
+  }
+
+  @Test
+  public void parsesComplexStar() throws IOException {
+    Parser parser = new Parser("(ab)*");
+    assertEquals("StarNode(ConcatinationNode(left: SingleNode(a), "
+               + "right: SingleNode(b)))", parser.parse().toString());
   }
 }
